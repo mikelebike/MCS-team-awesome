@@ -21,5 +21,8 @@ while(notprinted)
         elseif(rand<0.1)
         notprinted = 0;
         disp("A beautiful day for a beautiful girl/boy")
+        elseif(rand<0.1)
+        notprinted = 0;
+        disp("Hej hej yes I'm looking at you, you in the back")
     end
 end

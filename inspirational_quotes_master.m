@@ -27,5 +27,8 @@ while(notprinted)
         elseif(rand<0.1)
         notprinted = 0;
         disp("Hej hej yes I'm looking at you, you in the back")
+        lseif(rand<0.1)
+        notprinted = 0;
+        disp("Does this even work?!")
     end
 end

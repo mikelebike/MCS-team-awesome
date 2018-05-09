@@ -30,5 +30,6 @@ while(notprinted)
         lseif(rand<0.1)
         notprinted = 0;
         disp("Does this even work?!")
+        disp("HElooooo?")
     end
 end

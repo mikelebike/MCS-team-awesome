@@ -11,6 +11,9 @@ while(notprinted)
         disp("rest is for the wicked");
     elseif(rand<0.1)
         notprinted = 0;
+        disp("coding is fun! If it doesn't work, you just suck!");
+    elseif(rand<0.1)
+        notprinted = 0;
         disp("quiters no winners!")
     elseif(rand<0.1)
         notprinted = 0;

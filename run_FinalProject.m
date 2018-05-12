@@ -1,9 +1,65 @@
 %Final Project
+close all;
+clear all;
 
-function []= run_FinalProject(N_boid,N_hoick,tot_time)
+%function []= run_FinalProject(N_boid,N_hoick,tot_time)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Parameters
+
+L=400;      %system size
+N_boid = 80;     %Nr of boids
+N_hoick = 8; %Nr of hoicks
+dt = 0.1;   %Time-step
+R_r = 1;    %repulsion radius
+
+R_o = 10;      %Orientation radius
+R_a =  20;     %attraction radius
+
+v_boid = 0;
+theta_boid  = pi;
+theta_hoick =pi;
+phi =0;
+
+A_s =0;      %Possible sighting area
+A_m =0;       %Possible movement area
+
+omega_food =0;
+omega_hoick =0;
+omega_boid=0;
+
+distribution_food=0;
+distribution_predator=0;
+
+e_boid =0;              %noise
+e_hoick=0;              %Hoick noise  
+warm_up =10000;         %Warm up time, 15 minutes in the paper
+lifetime_hoick = 1000;  %Lifetime of a hoick
+lifetime_food=0;        %Food lifetime
+
+tot_time=100;   %Totalt time
+
+omega_food =0; 
+omega_predator =0; 
+food = false;
+makemovie=false;
+plot_sim=true;
+food=false;
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%Set up movie
+
+if plot_sim
+   fig=figure;
+end
+if makemovie
+    filename = 'Flocks And Predators 1.avi';
+    video = VideoWriter(filename);
+    video.FrameRate = 5;
+    video.Quality = 100;
+    open(video);
+end 
 
 
 %%%%%%%%%%Initialize boid
@@ -29,6 +85,7 @@ v_hoick = zeros(N_hoick,tot_time+1);      %velocity vector for all hoicks
 v_x_hoick=zeros(N_hoick,tot_time+1);
 v_y_hoick=zeros(N_hoick,tot_time+1);
 
+hoick_nr=1;
 for t=1:tot_time
         
 %     if boid
@@ -64,16 +121,12 @@ for t=1:tot_time
     
     
     %%%%%%%%%%%%%%%Predator
-    if any(isnan(x_hoick(i,t+1)))    %Skips this iteration if the value is NaN (successfull or dead hoick)
-        continue
-    end
-    
     %Distance to the boids
-    r_ij_prey(:,1)=((x_hoick(t)-x_boid(:,t)).^2 + (y_hoick(t)-y_boid(:,t)).^2).^0.5;
-    r_hat_x_prey(:,1) = (x_hoick(t)-x_boid(:,t))./r_ij_prey(:,1);               %Unit direction
-    r_hat_y_prey(:,1)= (y_hoick(t)-y_boid(:,t))./r_ij_prey(:,1);                  %Unit direction
+    r_ij_prey(:,1)=((x_hoick(hoick_nr,t)-x_boid(:,t)).^2 + (y_hoick(hoick_nr,t)-y_boid(:,t)).^2).^0.5;
+    r_hat_x_prey(:,1) = (x_hoick(hoick_nr,t)-x_boid(:,t))./r_ij_prey(:,1);               %Unit direction
+    r_hat_y_prey(:,1)= (y_hoick(hoick_nr,t)-y_boid(:,t))./r_ij_prey(:,1);                  %Unit direction
     
-    [r_ij_predator_sort,index1] = sort(r_ij_prey,1);               %Sorting the direction vector r_ij_predator
+    [r_ij_prey_sort,index1] = sort(r_ij_prey,1);               %Sorting the direction vector r_ij_predator
     
     %%%%%%%%%Find v
     %%%%%%%%%Find v_b
@@ -83,10 +136,14 @@ for t=1:tot_time
     
     if any(inside_R_r)      %If there are any boids inside the repulsion radius
         for j=1:length(inside_R_r)
-            if v_x_hoick(i)*r_hat_x_prey(index1(j)) +v_y_hoick(i)*r_hat_y_prey(index1(j))> v_hoick(i)*cos(theta_hoick(i)/2)
+            if v_x_hoick(hoick_nr,t)*r_hat_x_prey(index1(j),1) +v_y_hoick(hoick_nr,t)*r_hat_y_prey(index1(j),1)> v_hoick(hoick_nr,t)*cos(theta_hoick/2)
                 x_boid(index1(1),t+1:end)=NaN;
                 y_boid(index1(1),t+1:end)=NaN;
-                %T_boid(index1(1),t+1:end)=NaN;
+                
+                x_hoick(hoick_nr,t+1:end)=NaN;
+                y_hoick(hoick_nr,t+1:end)=NaN;
+                
+                hoick_nr = hoick_nr +1;            %Next hoick is chosen                
                 disp('eaten');
                 break
             end
@@ -94,16 +151,16 @@ for t=1:tot_time
     end
     
     %%%%%%Find v_prey
-    r_ij_prey = ((x_hoick(hoick_nr,t)-x(:,t)).^2 + (y_hoick(hoick_nr)-y(:,t)).^2)^0.5;
+    r_ij_prey = ((x_hoick(hoick_nr,t)-x_boid(:,t)).^2 + (y_hoick(hoick_nr,t)-y_boid(:,t)).^2).^0.5;
     [r_ij_vec, index_prey]= sort(r_ij_prey);
     
     v_prey_x = 0;
     v_prey_y = 0;
     
     for k=1:(r_ij_vec<R_a)
-        if  v_x_hoick(i)*r_hat_x_prey(index_pf(k)) +v_y_hoick(i)*r_hat_y_prey(index_pf(k))> v_hoick(i)*cos(theta(i)/2)
-            v_prey_x = x_boid(index_pf(k),t);
-            v_prey_y = y_boid(index_pf(k),t);
+        if  v_x_hoick(hoick_nr,t)*r_hat_x_prey(index_prey(k)) +v_y_hoick(hoick_nr,t)*r_hat_y_prey(index_prey(k))> v_hoick(hoick_nr,t)*cos(theta_hoick/2)
+            v_prey_x = x_boid(index_prey(k),t);
+            v_prey_y = y_boid(index_prey(k),t);
             break;
         end
     end
@@ -112,19 +169,30 @@ for t=1:tot_time
     v_noise_x = randn(1,1);
     v_noise_y = randn(1,1);
     
-    v_noise_x = noise_x/(v_noise_x^2 + v_noise_y^2)^0.5;
+    v_noise_x = v_noise_x/(v_noise_x^2 + v_noise_y^2)^0.5;
     v_noise_y = v_noise_y/(v_noise_x^2 + v_noise_y^2)^0.5;
     
     %Add together all the components for the velocity vector
-    v_x_hoick(hoick_nr,t+1) = omega_predator*v_prey_x + e*v_noise_x;
-    v_y_hoick(hoick_nr,t+1) = omega_predator*v_prey_y + e*v_noise_y;
+    v_x_hoick(hoick_nr,t+1) = omega_hoick*v_prey_x + e_hoick*v_noise_x;
+    v_y_hoick(hoick_nr,t+1) = omega_hoick*v_prey_y + e_hoick*v_noise_y;
     
-    
+    %Plot predator           
+    if plot_sim
+        if abs(x_hoick(hoick_nr,t)-x_hoick(hoick_nr,t+1))<v_hoick(hoick_nr,t) && abs(y_hoick(hoick_nr,t)-y_hoick(hoick_nr,t+1))<v_hoick(hoick_nr,t)
+            plot([x_hoick(hoick_nr,t), x_hoick(hoick_nr,t+1)] ,[y_hoick(hoick_nr,t),y_hoick(hoick_nr,t+1)],'r-','markersize',20) 
+            axis([0 L 0 L]);
+            hold on
+            plot(x_hoick(hoick_nr,t+1) ,y_predator(hoick_nr,t+1),'r.','markersize',15)
+            xlabel('X position')
+            ylabel('Y position')
+        end
+    end   
+
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%Boid
     for i=1:N_boid
-        if any(isnan(x(i,t+1)))    %Skips this iteration if the value is NaN (dead Boid)
+        if any(isnan(x_boid(i,t+1)))    %Skips this iteration if the value is NaN (dead Boid)
             continue
         end
         
@@ -167,8 +235,8 @@ for t=1:tot_time
             v_ox=0;
             v_oy=0;
             if any(index_vo)
-                v_ox= -v_x(index_vo)./sum(v_x(index_vo));
-                v_oy = -v_y(index_vo)./sum(v_y(index_vo));
+                v_ox= -v_x_boid(index_vo)./sum(v_x_boid(index_vo));
+                v_oy = -v_y_boid(index_vo)./sum(v_y_boid(index_vo));
             end
             
             %%%%%%%%%Find v_a
@@ -183,30 +251,30 @@ for t=1:tot_time
             end
             
             %Define v_b
-            v_b = ((v_ax + v_ox).^2 + (v_ay + v_ay).^2).^0.5;
+            v_b = ((v_ax + v_ox).^2 + (v_ay + v_oy).^2).^0.5;
             v_bx = (v_ax + v_ox)/v_b;
             v_by = (v_ay + v_ay)/v_b;
             
         end
         
         %%%%%%Find v_pf_boid
-        r_ij_pf_boid = ((x-x_pf_boid).^2 + (y-y_pf_boid).^2)^0.5;
+        r_ij_pf_boid = ((x_boid(i,t)-x_hoick(hoick_nr,t)).^2 + (y_boid(i,t)-y_hoick(hoick_nr,t)).^2).^0.5;
         [r_ij_vec, index_pf]= sort(r_ij_pf_boid);
         
         v_pf_x_boid = 0;
         v_pf_y_boid = 0;
         
         for k=1:(r_ij_vec<R_a)
-            if  v_x(i)*r_hat_x_pf(index_pf(k)) +v_y(i)*r_hat_y_pf(index_pf(k))> v(i)*cos(theta(i)/2)
-                if food
-                    v_pf_x_boid = x_pf;
-                    v_pf_y_boid = y_pf;
-                    break;
-                else
-                    v_pf_x_boid = -x_pf;
-                    v_pf_y_boid = -y_pf;
-                    break;
-                end
+            if food 
+%                 if  v_x(i)*r_hat_x_pf(index_pf(k)) +v_y(i)*r_hat_y_pf(index_pf(k))> v(i)*cos(theta(i)/2)
+%                     v_pf_x_boid = x_food;
+%                     v_pf_y_boid = y_food;
+%                     break;
+%                 end
+            else
+                v_pf_x_boid = -x_hoick;
+                v_pf_y_boid = -y_hoick;
+                break;
             end
         end
         
@@ -214,14 +282,39 @@ for t=1:tot_time
         v_noise_x = randn(1,1);
         v_noise_y = randn(1,1);
         
-        v_noise_x = noise_x/(v_noise_x^2 + v_noise_y^2)^0.5;
+        v_noise_x = v_noise_x/(v_noise_x^2 + v_noise_y^2)^0.5;
         v_noise_y = v_noise_y/(v_noise_x^2 + v_noise_y^2)^0.5;
         
         %Add together all the components for the velocity vector
-        v_x(i,t+1) = v_bx + omega*v_pf_x_boid + e*v_noise_x;
-        v_y(i,t+1) = v_by + omega*v_pf_y_boid + e*v_noise_y;
+        v_x_boid(i,t+1) = v_bx + omega_boid*v_pf_x_boid(i,t) + e_boid*v_noise_x;
+        v_y_boid(i,t+1) = v_by + omega_boid*v_pf_y_boid(i,t) + e_boid*v_noise_y;
+        
+        %Plot boids           
+        if plot_sim                
+            if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
+                plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],marker1,'markersize',7) %plots the first half of the particles in black
+                axis([0 L 0 L]);
+                hold on
+                plot(x_boid(i,t+1) ,y_boid(i,t+1),'k','markersize',5)
+                title(['Timestep: ',num2str(t)])
+                xlabel('X position') 
+                ylabel('Y position')
+            end
+        end       
         
     end
+        
+    %Making the video
+    if makemovie && plot_sim
+        hold off
+        F(j) = getframe(gcf);  %Gets the current frame
+        writeVideo(video,F(j)); %Puts the frame into the videomovie
+    end
+   
+end
+
+if makemovie && plot_sim
+    close(video);  %Closes movie
 end
 
 

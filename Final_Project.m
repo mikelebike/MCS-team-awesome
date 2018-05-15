@@ -2,10 +2,6 @@
 
 function []= run_FinalProject(N_boid,N_hoick,tot_time)
 
-
-
-
-
 %%%%%%%%%%Initialize boid
 % x(i,j) gives the x coordinate of the ith particle at time j
 x_boid=zeros(N_boid,tot_time+1);  %define initial x coordiantes of all particles
@@ -145,8 +141,8 @@ for t=1:tot_time
         v_by=0;
         
         if any(inside_R_r)      %If there are any boids inside the repulsion radius
-            %Kan ta bort att den då det är inte verkligt att de kan
-            %stå i varandra så länge de inte ser varandra
+            %Kan ta bort att den dï¿½ det ï¿½r inte verkligt att de kan
+            %stï¿½ i varandra sï¿½ lï¿½nge de inte ser varandra
             
             for j=1:length(inside_R_r)
                 

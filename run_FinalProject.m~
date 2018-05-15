@@ -283,10 +283,10 @@ for t = 1:tot_time
                     break;      %break when found the closest one
                 end
             else %predator
-                r_pf_xhat = (x_boid(i)-x_hoick(1)/r_ij_pf_boid; %TEMPORARY hoick index
-                r_pf_yhat = (y_boid(i)-y_hoick(1)/r_ij_pf_boid;
-                v_pf_x_boid = -r_pf_xhat;
-                v_pf_y_boid = -r_pf_yhat;
+                r_pf_xhat = (x_boid(i)-x_hoick(index_pf(k))/r_ij_pf_boid;
+                r_pf_yhat = (y_boid(i)-y_food(index_pf(k))/r_ij_pf_boid;
+                v_pf_x_boid = r_pf_xhat;
+                v_pf_y_boid = r_pf_yhat;
                 
                 break;
             end

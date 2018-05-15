@@ -5,7 +5,7 @@ while(notprinted)
         disp("you can do this!");
     elseif(rand<0.1)
         notprinted = 0;
-        disp("if you do just a little everyday, that puts so you much further ahead of the competition");
+        disp("if youDO just a little everyday, that puts so you much further ahead of the competition");
     elseif(rand<0.1)
         notprinted = 0;
         disp("rest is for the wicked");

@@ -2,17 +2,10 @@
 close all;
 clear all;
 
-%[] kolla omega predator om den beh�vs?
-%[] vad �r food
-
-
-
-
-
 %function []= run_FinalProject(N_boid,N_hoick,tot_time)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Parameters
 
+%Parameters
 L=400;      %system size
 N_boid = 80;     %Nr of boids
 N_hoick = 8; %Nr of hoicks
@@ -45,7 +38,7 @@ lifetime_hoick = 1000;  %Lifetime of a hoick
 lifetime_food = 0;        %Food lifetime
 tot_time=100;   %Totalt time
 
-%omega_predator = 0;
+%omega_predator = 0;    %CHECK what this is
 food = false;
 makemovie = false;
 plot_sim = true;

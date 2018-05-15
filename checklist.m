@@ -1,3 +1,7 @@
+%LEGEND
+% TEMPORARY for quick fixes
+% CHECK for things we're uncertain about
+
 %POSSIBLE extensions of the code
 
 %[] - having food and predators at the same time in simulation?

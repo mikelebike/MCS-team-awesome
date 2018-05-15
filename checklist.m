@@ -1,3 +1,26 @@
+% PROBLEMS TO FIX
+%[] -mike forloop för bla funkar ej 
+
+
+
+
+
+
+%MAJA
+
+
+
+%MIKE
+% [] - iaushdiuhasiuhd 
+
+%CHRISHANI
+
+
+%AVKLARAT
+
+
+
+
 %LEGEND
 % TEMPORARY for quick fixes
 % CHECK for things we're uncertain about
@@ -11,8 +34,36 @@
 %predators.
 %[] - having more than one predator at once, seeing if they are premiered
 %to hunt in packs or alone.
+%[] -
+%[] -
+%[] -
+%[] -
+%[] -
+%[] -
+%[] -
+%[] -
+%[] -
+%[] - 
+% 
+% 
+% FEEDBACK
+% * find out boundaries on what will limit abilities of the predator
+% * better to evolve predator on a single prey type at a time, not all three
+% all at once.
+% * kolla blind angle ska fixas.
 % 
 % 
 % 
 % 
 % 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+
+
+

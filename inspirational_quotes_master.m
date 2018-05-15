@@ -23,6 +23,9 @@ while(notprinted)
         disp("YOU are amazing!")
         elseif(rand<0.1)
         notprinted = 0;
+        disp("Kree :(((( ;););););) hashtag#fett")
+        elseif(rand<0.1)
+        notprinted = 0;
         disp("A beautiful day for a beautiful girl/boy")
         elseif(rand<0.1)
         notprinted = 0;

@@ -156,6 +156,5 @@ for t = 1:tot_time
  %       end
         hold on
         disp("din mamma") %DELETE
-        waitforbuttonpress
     end
 end

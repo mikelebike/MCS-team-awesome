@@ -16,8 +16,8 @@ N_boid = 80;            %Nr of boids
 dt = 0.1;               % CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 R_o = 4;               %Orientation radius
-R_a =  14;              %attraction radius
-v_evolve = 10;           %the evolvable speed of boid
+R_a = 21.5;              %attraction radius
+v_evolve = 4;           %the evolvable speed of boid
 
 theta_boid  = pi/4;       %turning angle for boids
 theta_hoick = pi/4;       %turning angle for hoicks
@@ -30,7 +30,7 @@ A_m =0;                 %Possible movement area
 
 e_boid = 0.3;             %sensitivity to noise
 warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time=100;           %Totalt time
+tot_time=300;           %Totalt time
 
 
 %DEFINE HELPFUL VECTORS
@@ -61,7 +61,7 @@ vx_boid = zeros(N_boid,tot_time+1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
-    t %DELETE
+   % t %DELETE
     
     %ITERATE OVER BOIDS
     for i=1:N_boid

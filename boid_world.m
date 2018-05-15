@@ -17,18 +17,18 @@ dt = 0.1;               % CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 R_o = 10;               %Orientation radius
 R_a =  20;              %attraction radius
-v_boid = 0;             %CHECK if this is necessary. v_void is speed of boids
+v_evolve = 10;           %the evolvable speed of boid
 
 theta_boid  = pi;       %turning angle for boids
 theta_hoick = pi;       %turning angle for hoicks
-phi_boid = 0;
-phi_hoick = 0;
+phi_boid = pi;           %viewing angle
+phi_hoick = pi;          %viewing angle
 
 A_s =0;                 %Possible sighting area
 A_m =0;                 %Possible movement area
 
 
-e_boid = 0;             %noise
+e_boid = 0;             %sensitivity to noise
 warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time=100;           %Totalt time
 
@@ -68,7 +68,7 @@ for t = 1:tot_time
         
         [t i]           %DELETE
         
-        if isnan(x_boid(i,t+1))    %Skips this iteration if the value is NaN (dead Boid)
+        if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
             continue
         end
         
@@ -91,12 +91,10 @@ for t = 1:tot_time
             vx_b = 0;
             vy_b = 0;
             
-           [ 1337,j] %DELETE
-            
             for j=1:length(inside_R_r)
                 j
-                
-                if vx_boid(i,t)*rx_hat(index(j)) +vy_boid(i,t)*ry_hat(index(j))> v_boid(i)*cos(theta(i)/2)
+                %SEE IF VISIBLE
+                if vx_boid(i,t)*rx_hat(index(j)) +vy_boid(i,t)*ry_hat(index(j))> v_evolve*cos(theta_boid/2) 
                     vx_b = vx_b + sum(rx_hat(index(j)));
                     vy_b = vy_b + sum(ry_hat(index(j)));
                 end
@@ -108,16 +106,18 @@ for t = 1:tot_time
         else  %No boids in the repulsion area
             
             %%%%%%%%%%Find v_o - orientation
-            index_vbo = find(r>R_r & r<R_o);               %Index for the boids in orientation radius
+            index_vbo = find(r>=R_r & r<R_o);               %Index for the boids in orientation radius
             vx_bo=0;
             vy_bo=0;
             if any(index_vbo)
-                vx_bo= -vx_boid(index_vbo)./sum(vx_boid(index_vbo));
-                vy_bo = -vy_boid(index_vbo)./sum(vy_boid(index_vbo));
+                for k = 1:length(index_vbo)
+                vx_bo= -vx_boid(index_vbo(k))/length(index_vbo);
+                vy_bo = -vy_boid(index_vbo(k))/length(index_vbo);
+                end
             end
             
             %%%%%%%%%Find v_a
-            index_vba = find(r>R_o & r<R_a);
+            index_vba = find(r>=R_o & r<R_a);
             vx_ba=0;
             vy_ba=0;
             
@@ -125,13 +125,13 @@ for t = 1:tot_time
             if any(index_vba)
                 %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                 for k = 1:length(index_vba)
-                vx_ba = vx_ba + rx_hat(index_vba)/sum(r);
-                vy_ba = vy_ba + ry_hat(index_vba)/sum(r);
+                vx_ba = vx_ba + rx_hat(index_vba(k))/length(index_vba);
+                vy_ba = vy_ba + ry_hat(index_vba(k))/length(index_vba);
                 end
             end
             %Define velocity unit vector v_b
-            v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5;
-            vx_b = (vx_ba + vx_bo)/v_b;
+            v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
+            vx_b = (vx_ba + vx_ba)/v_b;
             vy_b = (vy_ba + vy_ba)/v_b;
             
             
@@ -148,19 +148,23 @@ for t = 1:tot_time
         vx_boid(i,t+1) = vx_b + e_boid*vx_noise;% + omega_boid*v_pf_x_boid(i,t);
         vy_boid(i,t+1) = vy_b + e_boid*vy_noise;% + omega_boid*v_pf_y_boid(i,t);
         
-        x_boid(i,t+1) = x_boid(i,t+1) + vx_boid(i,t+1);
-        y_boid(i,t+1) = y_boid(i,t+1) + vy_boid(i,t+1);
+        vxy_norm = (vx_boid(i,t+1)^2 + vy_boid(i,t+1)^2)^.5+0.000000001;
+                
+        x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1)/vxy_norm;
+        y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1)/vxy_norm;
         
         %Plot boids
     %    if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
-            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'r-','markersize',50) %plots the first half of the particles in black
+            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
-            plot(x_boid(i,t+1) ,y_boid(i,t+1),'k.','markersize',70)
+            plot(x_boid(i,t+1) ,y_boid(i,t+1),'k.','markersize',14)
             title(['Timestep: ',num2str(t)])
             xlabel('X position')
             ylabel('Y position')
  %       end
         hold on
     end
+    pause(0.00001)
+    hold off
 end

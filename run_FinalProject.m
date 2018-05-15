@@ -276,15 +276,15 @@ for t = 1:tot_time
         for k=1:length(r_ij_vec(r_ij_vec<R_a))
             if food
                 if  v_x(i)*r_hat_x_pf(index_pf(k)) +v_y(i)*r_hat_y_pf(index_pf(k))> v(i)*cos(theta(i)/2)
-                    r_pf_xhat = (x_boid(i)-x_food(index_pf(k))/r_ij_pf_boid;
-                    r_pf_yhat = (y_boid(i)-y_food(index_pf(k))/r_ij_pf_boid;
+                    r_pf_xhat = (x_boid(i)-x_food(index_pf(k)))/r_ij_pf_boid;
+                    r_pf_yhat = (y_boid(i)-y_food(index_pf(k)))/r_ij_pf_boid;
                     v_pf_x_boid = r_pf_xhat;
                     v_pf_y_boid = r_pf_yhat;
                     break;      %break when found the closest one
                 end
             else %predator
-                r_pf_xhat = (x_boid(i)-x_hoick(1)/r_ij_pf_boid; %TEMPORARY hoick index
-                r_pf_yhat = (y_boid(i)-y_hoick(1)/r_ij_pf_boid;
+                r_pf_xhat = (x_boid(i)-x_hoick(1))/r_ij_pf_boid; %TEMPORARY hoick index
+                r_pf_yhat = (y_boid(i)-y_hoick(1))/r_ij_pf_boid;
                 v_pf_x_boid = -r_pf_xhat;
                 v_pf_y_boid = -r_pf_yhat;
                 break;

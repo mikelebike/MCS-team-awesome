@@ -2,6 +2,13 @@
 %simplifying the process of building the code corpus, one step at a time.
 
 
+%LEGEND FOR STUFF
+% CHECK
+% TEMPORARY
+% DELETE
+
+
+
 %INITIALIZE PARAMETERS
 L=400;                  %system size
 N_boid = 80;            %Nr of boids
@@ -33,6 +40,7 @@ ry_hat = zeros(N_boid,1);    %unit vector for y component
 
 %GRAPHICS STUFF
 fig=figure;
+marker1 = 14;
 
 
 
@@ -56,6 +64,8 @@ for t = 1:tot_time
     
     %ITERATE OVER BOIDS
     for i=1:N_boid
+        
+        [t i]           %DELETE
         
         if isnan(x_boid(i,t+1))    %Skips this iteration if the value is NaN (dead Boid)
             continue
@@ -133,10 +143,10 @@ for t = 1:tot_time
         vy_boid(i,t+1) = vy_b + e_boid*vy_noise;% + omega_boid*v_pf_y_boid(i,t);
         
         
-        disp("min mamma")
+        disp("min mamma") %DELETE
         %Plot boids
     %    if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
-            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],marker1,'markersize',7) %plots the first half of the particles in black
+            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'r','markersize',7) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
             plot(x_boid(i,t+1) ,y_boid(i,t+1),'k','markersize',5)
@@ -145,7 +155,7 @@ for t = 1:tot_time
             ylabel('Y position')
  %       end
         hold on
-        disp("din mamma")
+        disp("din mamma") %DELETE
         waitforbuttonpress
     end
 end

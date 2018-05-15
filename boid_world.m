@@ -33,6 +33,7 @@ ry_hat = zeros(N_boid,1);    %unit vector for y component
 
 %GRAPHICS STUFF
 fig=figure;
+marker1 = 14;
 
 
 

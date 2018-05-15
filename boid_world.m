@@ -7,7 +7,8 @@
 % TEMPORARY
 % DELETE
 
-
+clear all
+close all
 
 %INITIALIZE PARAMETERS
 L=400;                  %system size
@@ -90,7 +91,10 @@ for t = 1:tot_time
             vx_b = 0;
             vy_b = 0;
             
+           [ 1337,j] %DELETE
+            
             for j=1:length(inside_R_r)
+                j
                 
                 if vx_boid(i)*rx_hat(index(j)) +vy_boid(i)*ry_hat(index(j))> v_boid(i)*cos(theta(i)/2)
                     vx_b = vx_b + sum(rx_hat(index(j)));
@@ -103,7 +107,7 @@ for t = 1:tot_time
             
         else  %No boids in the repulsion area
             
-            %%%%%%%%%%Find v_o
+            %%%%%%%%%%Find v_o - orientation
             index_vbo = find(r>R_r & r<R_o);               %Index for the boids in orientation radius
             vx_bo=0;
             vy_bo=0;
@@ -113,16 +117,18 @@ for t = 1:tot_time
             end
             
             %%%%%%%%%Find v_a
-            index_vba = find(r_ij>R_o & r_ij<R_a);
+            index_vba = find(r>R_o & r<R_a);
             vx_ba=0;
             vy_ba=0;
             
+            %CHECK IF THERE ARE ANY BOIDS IN ATTRACTION AREA
             if any(index_vba)
-                vx_ba = rx_hat(index_vba)./sum(r);
-                vy_ba = ry_hat(index_vba)./sum(r);
-                
+                %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
+                for k = 1:length(index_vba)
+                vx_ba = vx_ba + rx_hat(index_vba)/sum(r);
+                vy_ba = vy_ba + ry_hat(index_vba)/sum(r);
+                end
             end
-            
             %Define velocity unit vector v_b
             v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5;
             vx_b = (vx_ba + vx_bo)/v_b;
@@ -143,18 +149,16 @@ for t = 1:tot_time
         vy_boid(i,t+1) = vy_b + e_boid*vy_noise;% + omega_boid*v_pf_y_boid(i,t);
         
         
-        disp("min mamma") %DELETE
         %Plot boids
     %    if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
-            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'r','markersize',7) %plots the first half of the particles in black
+            plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'r-','markersize',50) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
-            plot(x_boid(i,t+1) ,y_boid(i,t+1),'k','markersize',5)
+            plot(x_boid(i,t+1) ,y_boid(i,t+1),'k.','markersize',70)
             title(['Timestep: ',num2str(t)])
             xlabel('X position')
             ylabel('Y position')
  %       end
         hold on
-        disp("din mamma") %DELETE
     end
 end

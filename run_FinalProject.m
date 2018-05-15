@@ -2,6 +2,13 @@
 close all;
 clear all;
 
+%[] kolla omega predator om den beh�vs?
+%[] vad �r food
+
+
+
+
+
 %function []= run_FinalProject(N_boid,N_hoick,tot_time)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Parameters
@@ -16,17 +23,17 @@ R_o = 10;      %Orientation radius
 R_a =  20;     %attraction radius
 v_boid = 0;
 
-theta_boid  = pi;
-theta_hoick = pi;
-phi_boid = 0;
+theta_boid  = pi;  %turning angle for boids
+theta_hoick = pi;   %turning angle for hoicks
+phi_boid = 0;   
 phi_hoick = 0;
 
 A_s =0;      %Possible sighting area
 A_m =0;       %Possible movement area
 
-omega_food = 0;
-omega_hoick = 0;
-omega_boid = 0;
+omega_food =0;          %food preference
+omega_hoick =0;         %anti-predator preference
+omega_boid=0;           %preference to stay in the center of the group?
 
 distribution_food = 0;
 distribution_predator = 0;
@@ -160,7 +167,7 @@ for t = 1:tot_time
     v_prey_x = 0;
     v_prey_y = 0;
     
-    for k=1:(r_ij_vec<R_a)
+    for k=1:length(r_ij_vec(r_ij_vec<R_a))
         if  v_x_hoick(hoick_nr,t)*r_hat_x_prey(index_prey(k)) +v_y_hoick(hoick_nr,t)*r_hat_y_prey(index_prey(k))> v_hoick(hoick_nr,t)*cos(theta_hoick/2)
             v_prey_x = x_boid(index_prey(k),t);
             v_prey_y = y_boid(index_prey(k),t);
@@ -273,7 +280,7 @@ for t = 1:tot_time
         v_pf_x_boid = 0;
         v_pf_y_boid = 0;
         
-        for k=1:(r_ij_vec<R_a)
+        for k=1:length(r_ij_vec(r_ij_vec<R_a))
             if food
                 if  v_x(i)*r_hat_x_pf(index_pf(k)) +v_y(i)*r_hat_y_pf(index_pf(k))> v(i)*cos(theta(i)/2)
                     r_pf_xhat = (x_boid(i)-x_food(index_pf(k))/r_ij_pf_boid;
@@ -287,7 +294,6 @@ for t = 1:tot_time
                 r_pf_yhat = (y_boid(i)-y_hoick(1)/r_ij_pf_boid;
                 v_pf_x_boid = -r_pf_xhat;
                 v_pf_y_boid = -r_pf_yhat;
-                
                 break;
             end
         end
@@ -330,14 +336,3 @@ end
 if makemovie && plot_sim
     close(video);  %Closes movie
 end
-
-
-
-
-
-
-
-
-
-
-

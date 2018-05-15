@@ -15,12 +15,12 @@ L=400;                  %system size
 N_boid = 80;            %Nr of boids
 dt = 0.1;               % CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
-R_o = 10;               %Orientation radius
-R_a =  20;              %attraction radius
+R_o = 4;               %Orientation radius
+R_a =  14;              %attraction radius
 v_evolve = 10;           %the evolvable speed of boid
 
-theta_boid  = pi;       %turning angle for boids
-theta_hoick = pi;       %turning angle for hoicks
+theta_boid  = pi/4;       %turning angle for boids
+theta_hoick = pi/4;       %turning angle for hoicks
 phi_boid = pi;           %viewing angle
 phi_hoick = pi;          %viewing angle
 
@@ -28,7 +28,7 @@ A_s =0;                 %Possible sighting area
 A_m =0;                 %Possible movement area
 
 
-e_boid = 0;             %sensitivity to noise
+e_boid = 0.3;             %sensitivity to noise
 warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time=100;           %Totalt time
 
@@ -48,10 +48,10 @@ marker1 = 14;
 %INITIALIZE BOIDS
 % x(i,j) gives the x coordinate of the ith particle at time j
 x_boid=zeros(N_boid,tot_time+1);    %define initial x coordiantes for boids
-x_boid(:,1)=L*rand(N_boid,1);       %initial positions
+x_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
 
 y_boid=zeros(N_boid,tot_time+1);    %define initial y coordinates for boids
-y_boid(:,1)=L*rand(N_boid,1);       %initial positions
+y_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
 
 v_boid = zeros(N_boid,tot_time+1);   %velocity vector for all boids
 vy_boid = zeros(N_boid,tot_time+1);
@@ -61,16 +61,15 @@ vx_boid = zeros(N_boid,tot_time+1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
-    
+    t %DELETE
     
     %ITERATE OVER BOIDS
     for i=1:N_boid
         
-        [t i]           %DELETE
         
-        if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
-            continue
-        end
+%         if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
+%             continue
+%         end
         
         
         
@@ -99,8 +98,8 @@ for t = 1:tot_time
                     vy_b = vy_b + sum(ry_hat(index(j)));
                 end
                 
-                vx_b = -vx_b/sum(r(index(j)));
-                vy_b = -vy_b/sum(r(index(j)));
+                vx_b = +vx_b/sum(r(index(j)));
+                vy_b = +vy_b/sum(r(index(j)));
             end
             
         else  %No boids in the repulsion area
@@ -164,6 +163,9 @@ for t = 1:tot_time
             ylabel('Y position')
  %       end
         hold on
+        
+        vx_boid(i,t+1)
+        vy_boid(i,t+1)
     end
     pause(0.00001)
     hold off

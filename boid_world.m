@@ -69,11 +69,11 @@ vx_boid = zeros(N_boid,tot_time+1);
 for t = 1:tot_time
     
         
-    rx_temp=repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
-    ry_temp=repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
+    rx_temp = repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
+    ry_temp = repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
     
-    rx_hat=(rx_temp-x_boid(:,1));               %find distance vector between elements x-components
-    ry_hat=(ry_temp-y_boid(:,1));               %find distance vector between elements x-components
+    rx_hat = (rx_temp-x_boid(:,1));               %find distance vector between elements x-components
+    ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
     
     diagonal_temp=ones(1,N_boid)*inf;
     r= (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
@@ -88,7 +88,7 @@ for t = 1:tot_time
    % boid_index = boid_index(:,2:end);                   %remove that each boid is closest to itself.
     
     r_sort_m = r_sort_m';                   %do the same operations for r_sort_m as for index.
-   % r_sort_m = r_sort_m(:,2:end);          %CHECK behöver vi verkligen r_sort till något 
+   % r_sort_m = r_sort_m(:,2:end);          %CHECK behï¿½ver vi verkligen r_sort till nï¿½got 
 
     %ITERATE OVER BOIDS
     for i=1:N_boid

@@ -1,4 +1,4 @@
-function [X_allTime,frequency_info]=helpSim_FinalProject(p,makemovie,simulations,R_o_values,R_a_values)
+function [X_allTime,frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values)
 
 
     %Initializing necessary 
@@ -28,14 +28,13 @@ function [X_allTime,frequency_info]=helpSim_FinalProject(p,makemovie,simulations
             end
             
             avgX(count1,count2)=sum(endX(:,count2))/simulations;     %Give the average last value
-            disp(count2);
         end
             
-        %histS(count1,:)=hist(avgX(count1,:),neighbour_values); 
+        %histS(count1,:)=hist(avgX(count1,:),R_a_values); 
         disp(count1);
     end
     
-    %specified_bar = histS(round(length(error_values)/2),:);     %For the middle parameter_value
+    %specified_bar = histS(round(length(R_o_values)/2),:);     %For the middle parameter_value
     %specified_bar = histS(histS(end,:)/simulations);           %For last values of     
     %frequency_info = histS'/simulations;  
     

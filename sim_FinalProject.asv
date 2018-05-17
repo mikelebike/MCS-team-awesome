@@ -1,74 +1,114 @@
 %Final Project
 %Simulation 
+clear all;
+close all;
 
 %INITIALIZE PARAMETERS
-L=400;                  %system size
-N_boid = 40;            %Nr of boids
+L=100;                  %system size
+N_boid = 20;            %Nr of boids
 dt = 0.1;               %CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 
-R_o = 1;               %Orientation radius
-R_a = 17;              %attraction radius
+R_o = 2;                %Orientation radius
+R_a = 15;               %attraction radius
 
 v_evolve = 2;           %the evolvable speed of boid
 
 theta_boid  = pi/4;     %turning angle for boids
 theta_hoick = pi/4;     %turning angle for hoicks
-phi_boid = pi;          %viewing angle
-phi_hoick = pi;         %viewing angle
+phi_boid = pi/2;        %viewing angle
+phi_hoick = pi/2;       %viewing angle
 
-A_s =0;                 %Possible sighting area
-A_m =0;                 %Possible movement area
+A_s =2*phi_boid*v_evolve^2;                 %Possible sighting area
+A_m =theta_boid*R_a^2;                 %Possible movement area
 
 e_boid = 0.2;           %sensitivity to noise
 warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time=100;           %Totalt time
 
+
 %SIMULATION PARAMETERS
-one_sim=true;
-phase=true;
+one_sim=1;
+multi_sim=0;
+phase=0;
 
+make_figure=0;
+make_movie=0;
 
-p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r',R_r,'R_o','R_a',R_a,...
+p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r',R_r,'R_o',R_o,'R_a',R_a,...
     'v_evolve',v_evolve,'theta_boid',theta_boid,'theta_hoick',theta_hoick,...
     'phi_boid',phi_boid,'phi_hoick',phi_hoick,'A_s',A_s,'A_m',A_m,'e_boid',e_boid,...
     'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie);
 
-parameters=[vec,L,N_boid,dt,R_r,R_o,R_a,v_evolve,theta_boid,theta_hoick,phi_boid,phi_hoick,A_s,A_m,e_boid,warm_up,tot_time];
 
-%boid_world(parameters);
+%-------------------SINGLE SIMULATION WITH PLOT-------------------------%
 
 if one_sim
-    p.make_movie=true;
+    p.make_figure=1;
+    p.make_movie=0;
+    polarisation = boid_world(p);
     
-    boid_world(p);
-    
+    time_vec = 1:tot_time;
+    plot(time_vec,polarisation);
+    ylim([0 1])
+    xlabel('Timestep');
+    ylabel('Polarisation');
 end
 
 
-%PHASE TRANSITION 2D HEAT MAP
+%-------------------MULTIPLE SIMULATIONS VARYING PARAMETERS-------------------------%
+if multi_sim
+    %%%%%%%%%%%%Plots several simulations
+    make_figure=0;
+    make_movie=0;
+    simulations=10;
+    time_vec = 1:tot_time;
+    
+    changing_values = 13:30;
+    
+    figure(2)
+    hold on;
+    for i=1:length(changing_values)
+        
+        p.R_a=changing_values(i);
+        polarisation(i,:)=boid_world(p);
+        p_sim =plot(time_vec,polarisation(i,:));
+        hold on;
+        disp(num2str(i));
+    end
+
+    %Plotting
+    ga_avg = sum(polarisation,1)/simulations;
+    p_avg = plot(time_vec,ga_avg,'k','LineWidth',1.5);
+    ylim([0 1])
+    xlabel('Timestep');
+    ylabel('Polarisation');
+    legend([p_sim p_avg],{'Simulation','Average'});
+
+end
+
+
+%-------------------PHASE TRANSITION 2D HEAT MAP-------------------------%
 if phase         
-    p.make_movie=0;
+    p.make_figure=false;
+    p.make_movie=false;
     
     simulations=1;
-    R_o_values =0:(2*pi)/20:2*pi;
-    R_a_values=1:N-1;
+    R_o_values =1:30;
+    R_a_values=13:30;
     
-    [X_allTime, frequency_info]=helpSim_FinalProject(p,makemovie,simulations,R_o_values,R_a_values);
-
-    %Histogram
-    %figure(2)
-    %bar(specified_bar);
+    
+    [X_allTime, frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values);
 
     %Heatmap
     figure(3) 
     %clims = [0 0.15];
     clims=[0 1];
-    im = imagesc(error_values, neighbour_values, frequency_info,clims); 
+    im = imagesc(R_o_values, R_a_values, frequency_info,clims); 
     colorbar;
     set(gca,'YDir','normal');
-    ylabel('Number of neighbours');
-    xlabel('Error term');
+    ylabel('R_a');
+    xlabel('R_o');
     
 end
 

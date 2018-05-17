@@ -35,7 +35,7 @@ make_movie=p.make_movie;
 r = zeros(N_boid,1);       %r is the distance from current boid to all other boids
 rx_hat = zeros(N_boid,1);  %unit vector for x component
 ry_hat = zeros(N_boid,1);    %unit vector for y component
-
+polarisation = zeros(1,tot_time);
 
 %GRAPHICS STUFF
 if make_figure
@@ -222,8 +222,8 @@ for t = 1:tot_time
     vx_sum=sum(vx_boid(:,t));
     vy_sum=sum(vy_boid(:,t));
     
-    %polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
-    polarisation(t)=0;
+    polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
+    %polarisation(t)=0;
 end
      
 if make_movie

@@ -1,20 +1,14 @@
-% PROBLEMS TO FIX
-% 
-% 
-% 
+% PROBLEMS TO FIX  
 % 
 % [] - implement predator
 % 
-% MAJA
-% 
-% 
+% MAJA 
 % 
 % MIKE
 % [] - iaushdiuhasiuhd 
 % 
-% 
 % CHRISHANI
-% 
+% [] - Fixa figur 1
 % 
 % AVKLARAT
 % 

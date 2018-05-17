@@ -1,8 +1,6 @@
 %This code is just for the boids, #boidswillbeboids. This is for
 %simplifying the process of building the code corpus, one step at a time.
-
-close all
-clear all
+function [polarisation]=boid_world(p)
 
 %LEGEND FOR STUFF
 % CHECK
@@ -10,27 +8,27 @@ clear all
 % DELETE
 % OPTIMIZE
 
+
 %INITIALIZE PARAMETERS
-L=400;                  %system size
-N_boid = 40;            %Nr of boids
-dt = 0.1;               % CHECK Time-step, why is this used?
-R_r = 1;                %repulsion radius
-R_o = 4;               %Orientation radius
-R_a = 15;              %attraction radius
-v_evolve = 2;           %the evolvable speed of boid
+L =p.L;
+N_boid = p.N_boid;
+dt = p.dt;
+R_r = p.R_r;
+R_o = p.R_o;
+R_a = p.R_a;
+v_evolve = p.v_evolve;
+theta_boid = p.theta_boid;
+theta_hoick = p.theta_hoick;
+phi_boid = p.phi_boid;
+phi_hoick = p.phi_hoick;
+A_s = p.A_s;
+A_m = p.A_m;
+e_boid = p.e_boid;
+tot_time = p.tot_time;
 
-theta_boid  = pi/4;       %turning angle for boids
-theta_hoick = pi/4;       %turning angle for hoicks
-phi_boid = pi;           %viewing angle
-phi_hoick = pi;          %viewing angle
+make_figure=p.make_figure;
+make_movie=p.make_movie;
 
-A_s =0;                 %Possible sighting area
-A_m =0;                 %Possible movement area
-
-
-e_boid = 0.2;             %sensitivity to noise
-warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time=10;           %Totalt time
 
 
 %DEFINE HELPFUL VECTORS
@@ -40,9 +38,18 @@ ry_hat = zeros(N_boid,1);    %unit vector for y component
 
 
 %GRAPHICS STUFF
-fig=figure;
-marker1 = 14;
-
+if make_figure
+    fig=figure;
+    marker1 = 14;
+    
+    if make_movie
+    filename = 'Final Project.avi';
+    video = VideoWriter(filename);
+    video.FrameRate = 3;
+    video.Quality = 100;
+    open(video);
+    end   
+end
 
 
 %------INITIALIZE BOIDS-------%
@@ -68,7 +75,9 @@ for t = 1:tot_time
     rx_hat = (rx_temp-x_boid(:,1));               %find distance vector between elements x-components
     ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
     
-    r = (rx_hat.^2+ry_hat.^2).^0.5+inf*eye(N_boid);         %find euclidian distance and add term to avoid division by zero.
+    diagonal_temp=ones(1,N_boid)*inf;
+    r= (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
+    
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     
@@ -79,7 +88,7 @@ for t = 1:tot_time
    % boid_index = boid_index(:,2:end);                   %remove that each boid is closest to itself.
     
     r_sort_m = r_sort_m';                   %do the same operations for r_sort_m as for index.
-   % r_sort_m = r_sort_m(:,2:end);
+   % r_sort_m = r_sort_m(:,2:end);          %CHECK beh�ver vi verkligen r_sort till n�got 
 
     %ITERATE OVER BOIDS
     for i=1:N_boid
@@ -118,8 +127,8 @@ for t = 1:tot_time
                     vy_b = vy_b + sum(ry_hat(index_b(j)));
                 end
                 
-                vx_b = +vx_b/sum(r(index_b(j)));
-                vy_b = +vy_b/sum(r(index_b(j)));
+                vx_b = -vx_b/sum(r(index_b(j)));
+                vy_b = -vy_b/sum(r(index_b(j)));
             end
             
         %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
@@ -173,8 +182,10 @@ for t = 1:tot_time
         x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1)/vxy_norm;
         y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1)/vxy_norm;
         
+        %GRAPHICS
         %Plot boids
     %    if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
+         if make_figure
             plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
@@ -184,7 +195,37 @@ for t = 1:tot_time
   %          ylabel('Y position')
  %       end
    %     hold on
+         end
     end
-    pause(0.00001)
-    hold off
+    
+%     %GRAPHICS
+%     if makemovie
+%         pause(0.00001)
+%         hold off
+%     end
+    %Making the video
+    if make_figure
+        pause(0.00001)
+        hold off
+        
+        if make_movie
+        F(j) = getframe(gcf);  %Gets the current frame
+        writeVideo(video,F(j)); %Puts the frame into the videomovie
+        end
+    end
+       
+    %CHECK
+    %x_sum = sum(cos(T(:,j+1)));      %Sum of all the y directions
+    %y_sum = sum(sin(T(:,j)));        %Sum of all the y directions
+    
+    %polarization(j) = (1/N).*sqrt(x_sum.^2 + y_sum.^2);   %Polarisation  
+    vx_sum=sum(vx_boid(:,t));
+    vy_sum=sum(vy_boid(:,t));
+    
+    %polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
+    polarisation(t)=0;
+end
+     
+if make_movie
+    close(video);  %Closes movie
 end

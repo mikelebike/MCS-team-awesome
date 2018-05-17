@@ -62,13 +62,13 @@ vx_boid = zeros(N_boid,tot_time+1);
 for t = 1:tot_time
     
         
-    rx_temp=repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
-    ry_temp=repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
+    rx_temp = repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
+    ry_temp = repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
     
-    rx_hat=(rx_temp-x_boid(:,1));               %find distance vector between elements x-components
-    ry_hat=(ry_temp-y_boid(:,1));               %find distance vector between elements x-components
+    rx_hat = (rx_temp-x_boid(:,1));               %find distance vector between elements x-components
+    ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
     
-    r= (rx_hat.^2+ry_hat.^2).^0.5+inf*eye(N_boid);         %find euclidian distance and add term to avoid division by zero.
+    r = (rx_hat.^2+ry_hat.^2).^0.5+inf*eye(N_boid);         %find euclidian distance and add term to avoid division by zero.
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     

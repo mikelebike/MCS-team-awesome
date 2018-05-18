@@ -103,7 +103,8 @@ for t = 1:tot_time
                 vy_b = 0;
                 
                 for j=1:length(inside_R_r)
-                    %SEE IF WITHIN VIEWING ANGLE
+                    %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
+                    %now
                     %if vx(i,t)*rx_hat(index_b(j)) +vy(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2)
                         vx_b = vx_b + sum(rx_hat(index_b(j)));
                         vy_b = vy_b + sum(ry_hat(index_b(j)));
@@ -158,6 +159,8 @@ for t = 1:tot_time
                 vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
             end
             
+            % TEMPORARY Deleted this for now just to make the movement of the boids
+            %work
 %             if r(N_boid + N_hoick,i) <= R_o % TEMPORARY value. boid dies if hoick comes close
 %                 x(i,:) = NaN;
 %                 y(i,:) = NaN;

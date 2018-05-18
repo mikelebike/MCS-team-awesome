@@ -28,6 +28,7 @@ tot_time = p.tot_time;
 
 make_figure=p.make_figure;
 make_movie=p.make_movie;
+warm_up=p.warm_up;
 
 
 
@@ -135,7 +136,7 @@ for t = 1:tot_time
         else
             
             %%%%%%%%%%Find v_o - orientation
-            index_vbo = find(r>=R_r & r<R_o);               %Index for the boids in orientation radius
+            index_vbo = find(r(i,:)>=R_r & r(i,:)<R_o);               %Index for the boids in orientation radius
             vx_bo=0;
             vy_bo=0;
             if any(index_vbo)
@@ -146,7 +147,7 @@ for t = 1:tot_time
             end
            
             %%%%%%%%%Find v_a - attraction
-            index_vba = find(r>=R_o & r<R_a);
+            index_vba = find(r(i,:)>=R_o & r(i,:)<R_a);
             vx_ba=0;
             vy_ba=0;
             
@@ -173,7 +174,7 @@ for t = 1:tot_time
         vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
         vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
         
-        %%%%%Add together all the components for the velocity vector
+        %------Add together all the components for the velocity vector
         vx_boid(i,t+1) = vx_b + e_boid*vx_noise;% + omega_boid*v_pf_x_boid(i,t);
         vy_boid(i,t+1) = vy_b + e_boid*vy_noise;% + omega_boid*v_pf_y_boid(i,t);
         
@@ -182,10 +183,11 @@ for t = 1:tot_time
         x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1)/vxy_norm;
         y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1)/vxy_norm;
         
+
         %GRAPHICS
         %Plot boids
     %    if abs(x_boid(i,t)-x_boid(i,t+1))<v_boid(i,t) && abs(y_boid(i,j)-y_boid(i,j+1))<v_boid(i,t)
-         if make_figure
+         if make_figure && t>warm_up
             plot([x_boid(i,t), x_boid(i,t+1)] ,[y_boid(i,t),y_boid(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
@@ -196,36 +198,38 @@ for t = 1:tot_time
  %       end
    %     hold on
          end
-    end
     
 %     %GRAPHICS
 %     if makemovie
 %         pause(0.00001)
 %         hold off
 %     end
-    %Making the video
-    if make_figure
-        pause(0.00001)
-        hold off
-        
-        if make_movie
-        F(j) = getframe(gcf);  %Gets the current frame
-        writeVideo(video,F(j)); %Puts the frame into the videomovie
-        end
     end
-       
-    %CHECK
-    %x_sum = sum(cos(T(:,j+1)));      %Sum of all the y directions
-    %y_sum = sum(sin(T(:,j)));        %Sum of all the y directions
     
-    %polarization(j) = (1/N).*sqrt(x_sum.^2 + y_sum.^2);   %Polarisation  
-    vx_sum=sum(vx_boid(:,t));
-    vy_sum=sum(vy_boid(:,t));
+        %Making the video
+        if make_figure && t>warm_up
+            pause(0.00001)
+            hold off
+
+            if make_movie
+            F(j) = getframe(gcf);  %Gets the current frame
+            writeVideo(video,F(j)); %Puts the frame into the videomovie
+            end
+        end
+        
+        %----------Calculate polarisation----------%       
+        vx_sum=sum(vx_boid(:,t));
+        vy_sum=sum(vy_boid(:,t));
     
-    polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
-    %polarisation(t)=0;
+        polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
+        
+        if t>warm_up
+            disp(t)
+        end
 end
-     
+        
 if make_movie
     close(video);  %Closes movie
+end
+
 end

@@ -76,6 +76,7 @@ for t = 1:tot_time
     ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
     
     diagonal_temp = ones(1,N_boid)*inf;
+    r = (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
     
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     ry_hat = ry_hat./r;                     %normalize to create unit direction vector

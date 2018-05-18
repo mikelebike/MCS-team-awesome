@@ -80,7 +80,7 @@ for t = 1:tot_time
     r= (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
     
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
-    rx_hat = rx_hat./r;                     %normalize to create unit direction vector
+    ry_hat = ry_hat./r;                     %normalize to create unit direction vector
     
     
     [r_sort_m,boid_index] = sort(r(:,:)');               % OPTIMIZE by making this in the beginning   %Sorting the direction vector r_ij
@@ -91,23 +91,12 @@ for t = 1:tot_time
     r_sort_m = r_sort_m';                   %do the same operations for r_sort_m as for index.
    % r_sort_m = r_sort_m(:,2:end);          %CHECK beh�ver vi verkligen r_sort till n�got 
 
-    %ITERATE OVER BOIDS
+    %--------------ITERATE OVER BOIDS-------------------
     for i=1:N_boid
         
         if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
             continue
-        end
-        
-        
-        
-%--------------- THIS CAN BE REMOVED SINCE IT IS MOVED OUTSIDE OF BOID LOOP        
-%        %Distance to all other particles
-%         r(:,i)=((x_boid(i,t)-x_boid(:,t)).^2 + (y_boid(i,t)-y_boid(:,t)).^2).^0.5;
-%         rx_hat(:,i) = (x_boid(i,t)-x_boid(:,t))./(r(:,i)+0.0000000001);                    %Unit direction %OPTIMIZE BY PUTTING +0.0000000001 in matrix before!
-%         ry_hat(:,i)= (y_boid(i,t)-y_boid(:,t))./(r(:,i)+0.0000000001);                     %Unit direction
-        
-%        [r_sort,boid_index] = sort(r(:,i));               % OPTIMIZE by making this in the beginning   %Sorting the direction vector r_ij
-%-------------------------------------------------------------------------- 
+        end     
 
         r_sort=r_sort_m(i,:);
         index_b=boid_index(i,:);
@@ -117,13 +106,16 @@ for t = 1:tot_time
         
         
         %------ SEE IF ANY BOIDS IN REPULSION AREA--------
-        if any(inside_R_r)      %If there are any boids inside the repulsion radius
+        if ~isempty(inside_R_r)      %If there are any boids inside the repulsion radius
             vx_b = 0;
             vy_b = 0;
             
             for j=1:length(inside_R_r)
                 %SEE IF VISIBLE
+                %if vx_boid(i,t)*rx_hat(index_b(j)) +vy_boid(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2) 
+                %Without viewing angle
                 if vx_boid(i,t)*rx_hat(index_b(j)) +vy_boid(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2) 
+
                     vx_b = vx_b + sum(rx_hat(index_b(j)));
                     vy_b = vy_b + sum(ry_hat(index_b(j)));
                 end
@@ -139,7 +131,7 @@ for t = 1:tot_time
             index_vbo = find(r(i,:)>=R_r & r(i,:)<R_o);               %Index for the boids in orientation radius
             vx_bo=0;
             vy_bo=0;
-            if any(index_vbo)
+            if ~isempty(index_vbo)
                 for k = 1:length(index_vbo)
                 vx_bo= -vx_boid(index_vbo(k))/length(index_vbo);
                 vy_bo = -vy_boid(index_vbo(k))/length(index_vbo);
@@ -152,7 +144,7 @@ for t = 1:tot_time
             vy_ba=0;
             
             %CHECK IF THERE ARE ANY BOIDS IN ATTRACTION AREA
-            if any(index_vba)
+            if ~isempty(index_vba)
                 %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                 for k = 1:length(index_vba)
                 vx_ba = vx_ba + rx_hat(index_vba(k))/length(index_vba);
@@ -221,11 +213,13 @@ for t = 1:tot_time
         vx_sum=sum(vx_boid(:,t));
         vy_sum=sum(vy_boid(:,t));
     
-        polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);   %Polarisation
-        
-        disp(t)
+        polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
+
 end
-        
+
+%assignin('caller', 
+
+
 if make_movie
     close(video);  %Closes movie
 end

@@ -28,9 +28,9 @@ phi_hoick = pi/2;       %viewing angle
 A_s =2*phi_boid*v_evolve^2;            %Possible sighting area
 A_m =theta_boid*R_a^2;                 %Possible movement area
 
-e_boid = 0.2;           %sensitivity to noise
-warm_up =10000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time=20000;         %Totalt time
+e_boid = 0;           %sensitivity to noise
+warm_up =0;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+tot_time=5000;         %Totalt time
 
 
 %SIMULATION PARAMETERS
@@ -53,11 +53,11 @@ p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r',R_r,'R_o',R_o,'R_a',R_a,...
 %-------------------SINGLE SIMULATION WITH PLOT-------------------------%
 
 if one_sim
-    p.make_figure=0;
+    p.make_figure=1;
     p.make_movie=0;
     
-    p.R_o =4;
-    p.R_a=25;
+    p.R_o =15;
+    p.R_a=15;
     %Values for figure 1 from paper
     p.theta_boid = 1000/(R_a^2);
     p.phi_boid = 25/v_evolve^2;
@@ -72,11 +72,11 @@ if one_sim
 end
 
 
-%-------------------MULTIPLE SIMULATIONS VARYING PARAMETERS-------------------------%
+%-------------------MULTIPLE SIMULATIONS VARYING PARAMETERS------------------------%
 if multi_sim
     %%%%%%%%%%%%Plots several simulations
-    make_figure=0;
-    make_movie=0;
+    p.make_figure=0;
+    p.make_movie=0;
     simulations=10;
     time_vec = 1:tot_time;
     
@@ -109,14 +109,14 @@ if multi_sim
 end
 
 
-%-------------------PHASE TRANSITION 2D HEAT MAP-------------------------%
+%--------------------PHASE TRANSITION 2D HEAT MAP-------------------------%
 if phase         
-    p.make_figure=false;
-    p.make_movie=false;
+    p.make_figure=0;
+    p.make_movie=0;
     
-    simulations=1;
-    R_o_values =1:30;
-    R_a_values=13:30;
+    simulations=10;
+    R_o_values =1:0.5:30;
+    R_a_values=13:0.5:30;
     
     p.phi_boid = 25/v_evolve^2;
 

@@ -1,30 +1,36 @@
 %Final Project
 %Simulation 
+
 clear all;
 close all;
 
+%-----------------------------------------------------------------------%
+%--------------------------PARAMETERS-----------------------------------%
+
 %INITIALIZE PARAMETERS
-L=100;                  %system size
-N_boid = 20;            %Nr of boids
+L=800;                  %system size
+N_boid = 40;            %Nr of boids
 dt = 0.1;               %CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 
-R_o = 2;                %Orientation radius
+R_o = 10;                %Orientation radius
 R_a = 15;               %attraction radius
 
 v_evolve = 2;           %the evolvable speed of boid
+
+
 
 theta_boid  = pi/4;     %turning angle for boids
 theta_hoick = pi/4;     %turning angle for hoicks
 phi_boid = pi/2;        %viewing angle
 phi_hoick = pi/2;       %viewing angle
 
-A_s =2*phi_boid*v_evolve^2;                 %Possible sighting area
+A_s =2*phi_boid*v_evolve^2;            %Possible sighting area
 A_m =theta_boid*R_a^2;                 %Possible movement area
 
 e_boid = 0.2;           %sensitivity to noise
-warm_up = 10000;        % CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time=100;           %Totalt time
+warm_up =10000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+tot_time=20000;         %Totalt time
 
 
 %SIMULATION PARAMETERS
@@ -38,14 +44,24 @@ make_movie=0;
 p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r',R_r,'R_o',R_o,'R_a',R_a,...
     'v_evolve',v_evolve,'theta_boid',theta_boid,'theta_hoick',theta_hoick,...
     'phi_boid',phi_boid,'phi_hoick',phi_hoick,'A_s',A_s,'A_m',A_m,'e_boid',e_boid,...
-    'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie);
+    'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie,...
+    'warm_up',warm_up);
 
+%-----------------------------------------------------------------------%
+%--------------------------SIMULATIONS----------------------------------%
 
 %-------------------SINGLE SIMULATION WITH PLOT-------------------------%
 
 if one_sim
-    p.make_figure=1;
+    p.make_figure=0;
     p.make_movie=0;
+    
+    p.R_o =4;
+    p.R_a=25;
+    %Values for figure 1 from paper
+    p.theta_boid = 1000/(R_a^2);
+    p.phi_boid = 25/v_evolve^2;
+    
     polarisation = boid_world(p);
     
     time_vec = 1:tot_time;
@@ -64,16 +80,20 @@ if multi_sim
     simulations=10;
     time_vec = 1:tot_time;
     
-    changing_values = 13:30;
-    
+    changing_values = 13:4:30;
+    p.phi_boid = 25/v_evolve^2;
+
     figure(2)
     hold on;
     for i=1:length(changing_values)
         
         p.R_a=changing_values(i);
+        p.theta_boid = 1000/(R_a^2);
+    
         polarisation(i,:)=boid_world(p);
         p_sim =plot(time_vec,polarisation(i,:));
         hold on;
+        Legend{i}=num2str(changing_values(i));
         disp(num2str(i));
     end
 
@@ -81,11 +101,11 @@ if multi_sim
     %CHECK average är ej användbart, titta inte på den svarta linjen
     ga_avg = sum(polarisation,1)/simulations;
     p_avg = plot(time_vec,ga_avg,'k','LineWidth',1.5);
-    ylim([0 1])
+    %ylim([0 1])
     xlabel('Timestep');
     ylabel('Polarisation');
-    legend([p_sim p_avg],{'Simulation','Average'});
-
+    %legend([p_sim p_avg],{'Simulation','Average'});
+    legend(Legend);
 end
 
 
@@ -98,7 +118,8 @@ if phase
     R_o_values =1:30;
     R_a_values=13:30;
     
-    
+    p.phi_boid = 25/v_evolve^2;
+
     [X_allTime, frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values);
 
     %Heatmap

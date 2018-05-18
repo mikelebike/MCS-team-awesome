@@ -124,7 +124,6 @@ for t = 1:tot_time
                         vx_bo = -vx(index_vbo(k))/length(index_vbo);
                         vy_bo = -vy(index_vbo(k))/length(index_vbo);
                     end
-                    
                 end
                 
                 %Find v_a - attraction

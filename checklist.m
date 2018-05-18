@@ -3,6 +3,7 @@
 % [] - implement predator
 % [] - in hoick world, get boids and hoicks to interact
 % [] - fix velocity for predator
+% [] - fix bug on velocity for boids
 %
 % MAJA 
 % 

@@ -67,6 +67,7 @@ vx_boid = zeros(N_boid,tot_time+1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
+    
         
     rx_temp = repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
     ry_temp = repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
@@ -74,8 +75,8 @@ for t = 1:tot_time
     rx_hat = (rx_temp-x_boid(:,1));               %find distance vector between elements x-components
     ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
     
-    diagonal_temp = ones(1,N_boid)*inf;
-    r = (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
+    diagonal_temp=ones(1,N_boid)*inf;
+    r= (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
     
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
@@ -84,8 +85,10 @@ for t = 1:tot_time
     [r_sort_m,boid_index] = sort(r(:,:)');               % OPTIMIZE by making this in the beginning   %Sorting the direction vector r_ij
     
     boid_index = boid_index';                         %turn index right so every row represents a boid
+   % boid_index = boid_index(:,2:end);                   %remove that each boid is closest to itself.
     
-   
+    r_sort_m = r_sort_m';                   %do the same operations for r_sort_m as for index.
+   % r_sort_m = r_sort_m(:,2:end);          %CHECK beh�ver vi verkligen r_sort till n�got 
 
     %ITERATE OVER BOIDS
     for i=1:N_boid
@@ -93,7 +96,19 @@ for t = 1:tot_time
         if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
             continue
         end
+        
+        
+        
+%--------------- THIS CAN BE REMOVED SINCE IT IS MOVED OUTSIDE OF BOID LOOP        
+%        %Distance to all other particles
+%         r(:,i)=((x_boid(i,t)-x_boid(:,t)).^2 + (y_boid(i,t)-y_boid(:,t)).^2).^0.5;
+%         rx_hat(:,i) = (x_boid(i,t)-x_boid(:,t))./(r(:,i)+0.0000000001);                    %Unit direction %OPTIMIZE BY PUTTING +0.0000000001 in matrix before!
+%         ry_hat(:,i)= (y_boid(i,t)-y_boid(:,t))./(r(:,i)+0.0000000001);                     %Unit direction
+        
+%        [r_sort,boid_index] = sort(r(:,i));               % OPTIMIZE by making this in the beginning   %Sorting the direction vector r_ij
+%-------------------------------------------------------------------------- 
 
+        r_sort=r_sort_m(i,:);
         index_b=boid_index(i,:);
         
         %Looking at all the boids inside the repulsion radius

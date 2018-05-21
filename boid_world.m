@@ -167,6 +167,9 @@ for t = 1:tot_time
         vy_boid(i,t+1) = vy_b + e_boid*vy_noise;% + omega_boid*v_pf_y_boid(i,t);
         
         vxy_norm = (vx_boid(i,t+1)^2 + vy_boid(i,t+1)^2)^.5+0.000000001;
+        
+        vx_boid(i,t+1)=vx_boid(i,t+1)/vxy_norm;
+        vy_boid(i,t+1)=vy_boid(i,t+1)/vxy_norm;
                 
         x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1)/vxy_norm;
         y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1)/vxy_norm;

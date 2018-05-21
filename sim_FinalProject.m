@@ -4,8 +4,10 @@
 clear all;
 close all;
 
+
 %-----------------------------------------------------------------------%
 %--------------------------PARAMETERS-----------------------------------%
+
 
 %INITIALIZE PARAMETERS
 L=800;                  %system size
@@ -14,10 +16,9 @@ dt = 0.1;               %CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 
 R_o = 10;                %Orientation radius
-R_a = 15;               %attraction radius
+R_a = 13;               %attraction radius
 
 v_evolve = 2;           %the evolvable speed of boid
-
 
 
 theta_boid  = pi/4;     %turning angle for boids
@@ -28,9 +29,9 @@ phi_hoick = pi/2;       %viewing angle
 A_s =2*phi_boid*v_evolve^2;            %Possible sighting area
 A_m =theta_boid*R_a^2;                 %Possible movement area
 
-e_boid = 0;           %sensitivity to noise
-warm_up =0;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time=5000;         %Totalt time
+e_boid = 0.01;          %sensitivity to noise
+warm_up =5000;          %warm up 
+tot_time=10000;         %Totalt time
 
 
 %SIMULATION PARAMETERS

@@ -28,7 +28,11 @@ phi_hoick = pi;          %viewing angle
 A_s = 0;                 % CHECK do we use this? Possible sighting area
 A_m = 0;                 % CHECK do we use this? Possible movement area
 
+<<<<<<< HEAD
 e_boid = 0.0;           %Sensitivity to noise
+=======
+e_boid = 0;           %Sensitivity to noise
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 1000;       %Totalt time
@@ -98,15 +102,25 @@ for t = 1:tot_time
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
 
+<<<<<<< HEAD
             if not(inside_R_r)
+=======
+            if not(inside_R_r==0)
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
                 vx_b = 0;
                 vy_b = 0;
 
                 lesum = 0;
+<<<<<<< HEAD
                 
                 disp("TOO REPULSIVE!");
                 for j=1:inside_R_r
                     disp("OH no... me repulsed");
+=======
+
+                for j=1:inside_R_r
+
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
                     %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
                     %now
                     %if vx(i,t)*rx_hat(index_b(j)) +vy(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2)

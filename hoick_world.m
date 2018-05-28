@@ -178,9 +178,7 @@ for t = 1:tot_time
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b;% + e_boid*vx_noise + vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b;% + e_boid*vy_noise + vy_p;% + omega_boid*v_pf_y_boid(i,t);
-            vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t); %TEMPORARY
+            vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b + e_boid*vy_noise; %+ vy_p;% + omega_boid*v_pf_y_boid(i,t); 
             
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;

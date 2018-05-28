@@ -28,7 +28,7 @@ phi_hoick = pi;          %viewing angle
 A_s = 0;                 % CHECK do we use this? Possible sighting area
 A_m = 0;                 % CHECK do we use this? Possible movement area
 
-e_boid = 0;           %Sensitivity to noise
+e_boid = 0.0;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 1000;       %Totalt time
@@ -97,26 +97,24 @@ for t = 1:tot_time
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
-
+            
             if not(inside_R_r==0)
                 vx_b = 0;
                 vy_b = 0;
-
+                
                 lesum = 0;
-
+                
                 for j=1:inside_R_r
-
+                    
                     %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
                     %now
                     %if vx(i,t)*rx_hat(index_b(j)) +vy(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2)
-                        vx_b = vx_b + rx_hat(i,index_b(j));
-                        vy_b = vy_b + ry_hat(i,index_b(j));
-                        lesum = lesum + r(i,index_b(j));
+                    vx_b = vx_b + rx_hat(index_b(j),i);
+                    vy_b = vy_b + ry_hat(index_b(j),i);
+                    lesum = lesum + r(index_b(j),i);
                     %end
-                   % vx_b = -vx_b/sum(r(index_b(j))); 
-              %  vy_b = -vy_b/sum(r(index_b(j)));
                 end
-                vx_b = -vx_b/lesum; 
+                vx_b = -vx_b/lesum;
                 vy_b = -vy_b/lesum;
                 %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
             else
@@ -127,8 +125,8 @@ for t = 1:tot_time
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
-                        vx_bo = -vx(index_vbo(k))/length(index_vbo);
-                        vy_bo = -vy(index_vbo(k))/length(index_vbo);
+                        vx_bo = -vx(index_vbo(k));
+                        vy_bo = -vy(index_vbo(k));
                     end
                     
                 end
@@ -142,8 +140,8 @@ for t = 1:tot_time
                 if not(isempty(index_vba))
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
-                        vx_ba = vx_ba + rx_hat(index_vba(k))/length(index_vba);
-                        vy_ba = vy_ba + ry_hat(index_vba(k))/length(index_vba);
+                        vx_ba = vx_ba + rx_hat(index_vba(k),i);
+                        vy_ba = vy_ba + ry_hat(index_vba(k),i);
                     end
                 end
                 %----DEFINE VELOCITY UNIT VECTOR v_b----
@@ -166,10 +164,10 @@ for t = 1:tot_time
             
             % TEMPORARY Deleted this for now just to make the movement of the boids
             %work
-%             if r(N_boid + N_hoick,i) <= R_o % TEMPORARY value. boid dies if hoick comes close
-%                 x(i,:) = NaN;
-%                 y(i,:) = NaN;
-%             end
+            %             if r(N_boid + N_hoick,i) <= R_o % TEMPORARY value. boid dies if hoick comes close
+            %                 x(i,:) = NaN;
+            %                 y(i,:) = NaN;
+            %             end
             
             %----------FIND NOISE----------------------------------%
             vx_noise = randn(1,1);
@@ -180,7 +178,7 @@ for t = 1:tot_time
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b + e_boid*vy_noise; %+ vy_p;% + omega_boid*v_pf_y_boid(i,t); 
+            vy(i,t+1) = vy_b + e_boid*vy_noise; %+ vy_p;% + omega_boid*v_pf_y_boid(i,t);
             
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
@@ -188,6 +186,9 @@ for t = 1:tot_time
             y(i,t+1) = y(i,t) + v_evolve*vy(i,t+1)/vxy_norm;
             
             %---------PLOT BOIDS---------------------------
+            x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
+            y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
+            
             plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on
@@ -195,7 +196,7 @@ for t = 1:tot_time
             
         else %predator
             %FIND VELOCITY FOR HOICK
-            vx(i,t+1) = rx_hat(i,hoick_index(1)); 
+            vx(i,t+1) = rx_hat(i,hoick_index(1));
             vy(i,t+1) = ry_hat(i,hoick_index(1));
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
@@ -205,6 +206,9 @@ for t = 1:tot_time
             
             
             %-----------PLOT HOICK----------------------
+            x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
+            y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
+            
             plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
             axis([0 L 0 L]);
             hold on

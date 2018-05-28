@@ -29,6 +29,7 @@ A_s = 0;                 % CHECK do we use this? Possible sighting area
 A_m = 0;                 % CHECK do we use this? Possible movement area
 
 e_boid = 0.2;           %Sensitivity to noise
+omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 100;       %Totalt time
 
@@ -61,11 +62,11 @@ vx = zeros(N_boid + N_hoick,tot_time+1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
-    rx_temp = repmat(x(:,1)',numel(x(:,1)),1); %create matrix of all individuals positions in x
-    ry_temp = repmat(y(:,1)',numel(y(:,1)),1); %create matrix of all individuals positions in y
+    rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
+    ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
-    rx_hat = (rx_temp-x(:,1));               %find distance vector between elements x-components
-    ry_hat = (ry_temp-y(:,1));               %find distance vector between elements x-components
+    rx_hat = (rx_temp-x(:,t));               %find distance vector between elements x-components
+    ry_hat = (ry_temp-y(:,t));               %find distance vector between elements x-components
     
     diagonal_temp=ones(1,N_boid + N_hoick)*inf;
     r = (rx_hat.^2+ry_hat.^2).^0.5++diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
@@ -101,6 +102,7 @@ for t = 1:tot_time
             if not(isempty(inside_R_r))
                 vx_b = 0;
                 vy_b = 0;
+                
                 
                 for j=1:length(inside_R_r)
                     %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
@@ -143,8 +145,8 @@ for t = 1:tot_time
                 end
                 %----DEFINE VELOCITY UNIT VECTOR v_b----
                 v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
-                vx_b = (vx_ba + vx_ba)/v_b;
-                vy_b = (vy_ba + vy_ba)/v_b;
+                vx_b = (vx_ba + vx_bo)/v_b;
+                vy_b = (vy_ba + vy_bo)/v_b;
                 
                 
             end
@@ -174,8 +176,8 @@ for t = 1:tot_time
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b; %+ e_boid*vx_noise + vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b; %+ e_boid*vy_noise + vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vx(i,t+1) = vx_b;% + e_boid*vx_noise + vx_p;% + omega_boid*v_pf_x_boid(i,t);
+            vy(i,t+1) = vy_b;% + e_boid*vy_noise + vy_p;% + omega_boid*v_pf_y_boid(i,t);
             
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             

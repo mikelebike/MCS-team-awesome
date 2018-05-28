@@ -15,8 +15,8 @@ L=400;                  %System size
 N_boid = 40;            %Nr of boids
 N_hoick = 1;            %Nr of predators
 R_r = 1;                %repulsion radius
-R_o = 5;                %Orientation radius
-R_a = 20;               %Attraction radius
+R_o = 2;                %Orientation radius
+R_a = 14;               %Attraction radius
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
 v_hoick = 8;            % TEMPORARY value. Speed of hoick
 
@@ -66,10 +66,10 @@ for t = 1:tot_time
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
     rx_hat = (rx_temp-x(:,t));               %find distance vector between elements x-components
-    ry_hat = (ry_temp-y(:,t));               %find distance vector between elements x-components
+    ry_hat = (ry_temp-y(:,t));               %find distance vector between elements y-components
     
-    diagonal_temp=ones(1,N_boid + N_hoick)*inf;
-    r = (rx_hat.^2+ry_hat.^2).^0.5++diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
+    diagonal_temp = ones(1,N_boid + N_hoick)*inf;
+    r = (rx_hat.^2+ry_hat.^2).^0.5 + diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
     rx_hat = rx_hat./r;                     %normalize to create unit direction vector
     ry_hat = ry_hat./r;                     %normalize to create unit direction vector
     
@@ -94,27 +94,29 @@ for t = 1:tot_time
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
-            inside_R_r = r_boid(r_boid < R_r); %find indicies for boids inside repulsion radius
-            
+            inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
 
             if not(isempty(inside_R_r))
                 vx_b = 0;
                 vy_b = 0;
-                
-                
+
+                lesum = 0;
+
                 for j=1:length(inside_R_r)
                     %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
                     %now
                     %if vx(i,t)*rx_hat(index_b(j)) +vy(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2)
-                        vx_b = vx_b + sum(rx_hat(index_b(j)));
-                        vy_b = vy_b + sum(ry_hat(index_b(j)));
+                        vx_b = vx_b + rx_hat(i,index_b(j));
+                        vy_b = vy_b + ry_hat(i,index_b(j));
+                        lesum = lesum + r(i,index_b(j));
                     %end
-                    vx_b = -vx_b/sum(r(index_b(j)));
-                    vy_b = -vy_b/sum(r(index_b(j)));
+                   % vx_b = -vx_b/sum(r(index_b(j))); 
+              %  vy_b = -vy_b/sum(r(index_b(j)));
                 end
-                
+                vx_b = -vx_b/lesum; 
+                vy_b = -vy_b/lesum;
                 %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
             else
                 
@@ -178,6 +180,8 @@ for t = 1:tot_time
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = vx_b;% + e_boid*vx_noise + vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b;% + e_boid*vy_noise + vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t); %TEMPORARY
+            vy(i,t+1) = vy_b + e_boid*vy_noise; %+ vy_p;% + omega_boid*v_pf_y_boid(i,t); 
             
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             

@@ -69,11 +69,11 @@ vx_boid = zeros(N_boid,tot_time+1);
 %ITERATE OVER TIME
 for t = 1:tot_time
         
-    rx_temp = repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
-    ry_temp = repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
+    rx_temp = repmat(x_boid(:,t)',numel(x_boid(:,t)),1); %create matrix of all boids positions in x
+    ry_temp = repmat(y_boid(:,t)',numel(y_boid(:,t)),1); %create matrix of all boids positions in y
     
-    rx_hat = (rx_temp-x_boid(:,1));               %find distance vector between elements x-components
-    ry_hat = (ry_temp-y_boid(:,1));               %find distance vector between elements x-components
+    rx_hat = (rx_temp-x_boid(:,t));               %find distance vector between elements x-components
+    ry_hat = (ry_temp-y_boid(:,t));               %find distance vector between elements x-components
     
     diagonal_temp = ones(1,N_boid)*inf;
     r = (rx_hat.^2+ry_hat.^2).^0.5+diag(diagonal_temp);         %find euclidian distance and add term to avoid division by zero.
@@ -129,7 +129,7 @@ for t = 1:tot_time
             vy_bo=0;
             if ~isempty(index_vbo)
                 for k = 1:length(index_vbo)
-                vx_bo= -vx_boid(index_vbo(k))/length(index_vbo);
+                vx_bo = -vx_boid(index_vbo(k))/length(index_vbo);
                 vy_bo = -vy_boid(index_vbo(k))/length(index_vbo);
                 end
             end
@@ -149,8 +149,8 @@ for t = 1:tot_time
             end
             %Define velocity unit vector v_b
             v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
-            vx_b = (vx_ba + vx_ba)/v_b;
-            vy_b = (vy_ba + vy_ba)/v_b;
+            vx_b = (vx_ba + vx_bo)/v_b;
+            vy_b = (vy_ba + vy_bo)/v_b;
             
             
         end

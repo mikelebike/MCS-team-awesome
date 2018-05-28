@@ -28,7 +28,15 @@ phi_hoick = pi;          %viewing angle
 A_s = 0;                 % CHECK do we use this? Possible sighting area
 A_m = 0;                 % CHECK do we use this? Possible movement area
 
+<<<<<<< HEAD
 e_boid = 0.0;           %Sensitivity to noise
+=======
+<<<<<<< HEAD
+e_boid = 0.0;           %Sensitivity to noise
+=======
+e_boid = 0;           %Sensitivity to noise
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
+>>>>>>> bbca9f0fddbe7f9356d9f000cbbfc6d14785f534
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 1000;       %Totalt time
@@ -97,15 +105,36 @@ for t = 1:tot_time
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
+<<<<<<< HEAD
             
+=======
+
+<<<<<<< HEAD
+            if not(inside_R_r)
+=======
+>>>>>>> bbca9f0fddbe7f9356d9f000cbbfc6d14785f534
             if not(inside_R_r==0)
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
                 vx_b = 0;
                 vy_b = 0;
                 
                 lesum = 0;
+<<<<<<< HEAD
                 
                 for j=1:inside_R_r
                     
+=======
+<<<<<<< HEAD
+                
+                disp("TOO REPULSIVE!");
+                for j=1:inside_R_r
+                    disp("OH no... me repulsed");
+=======
+
+                for j=1:inside_R_r
+
+>>>>>>> 51183a7885a8939c300ab5f1e97c9f63effb1901
+>>>>>>> bbca9f0fddbe7f9356d9f000cbbfc6d14785f534
                     %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
                     %now
                     %if vx(i,t)*rx_hat(index_b(j)) +vy(i,t)*ry_hat(index_b(j))> v_evolve*cos(theta_boid/2)
@@ -137,7 +166,9 @@ for t = 1:tot_time
                 vy_ba = 0;
                 
                 %CHECK IF THERE ARE ANY BOIDS IN ATTRACTION AREA
+                
                 if not(isempty(index_vba))
+                    disp("OH BOY, that is soo attractive man... yeah");
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
                         vx_ba = vx_ba + rx_hat(index_vba(k),i);

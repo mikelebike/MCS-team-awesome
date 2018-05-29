@@ -4,6 +4,12 @@
 close all
 clear all
 
+%DELETE
+cpkukx = 0;
+cpkuky = 0;
+second = 0;
+first = 0;
+
 %LEGEND FOR STUFF
 % CHECK
 % TEMPORARY
@@ -18,13 +24,13 @@ R_r = 1;                %repulsion radius
 R_o = 10;                %Orientation radius
 R_a = 13;               %Attraction radius
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
-v_hoick = 8;            % TEMPORARY value. Speed of hoick
+v_hoick = 1.9;            % TEMPORARY value. Speed of hoick
 A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
 A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
-phi_boid  = 0.00000000000000001;%A_m/(2*v_evolve^2); %turning angle for boids
+phi_boid  = 0.01;%A_m/(2*v_evolve^2); %turning angle for boids
 phi_hoick = pi/4;      %turning angle for hoicks
-theta_boid = 0.000000000001;%A_s/R_a^2;      %viewing angle
+theta_boid = A_s/R_a^2;      %viewing angle
 theta_hoick = pi;          %viewing angle
 
 
@@ -32,13 +38,7 @@ theta_hoick = pi;          %viewing angle
 e_boid = 0.00001;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 0;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time = 1000 + warm_up;       %Totalt time
-
-
-%DEFINE HELPFUL VECTORS
-r = zeros(N_boid + N_hoick,1);         %r is the distance from current boid to all other boids
-rx_hat = zeros(N_boid + N_hoick,1);    %unit vector for x component
-ry_hat = zeros(N_boid + N_hoick,1);    %unit vector for y component
+tot_time = 10000 + warm_up;       %Totalt time
 
 
 %GRAPHICS STUFF
@@ -59,6 +59,14 @@ v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);
 vx = zeros(N_boid + N_hoick,tot_time+1);
 
+%DEFINE HELPFUL VECTORS
+r = zeros(N_boid + N_hoick,1);         %r is the distance from current boid to all other boids
+rx_hat = zeros(N_boid + N_hoick,1);    %unit vector for x component
+ry_hat = zeros(N_boid + N_hoick,1);    %unit vector for y component
+
+prevdirection = zeros(N_boid + N_hoick, tot_time+1);
+newdirection = zeros(N_boid + N_hoick, tot_time+1);
+newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
@@ -92,7 +100,7 @@ for t = 1:tot_time
                 continue
             end
             
-            index_b = boid_index(i,:) %Get indicies sorted by size from boid i to other boids
+            index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
@@ -178,8 +186,12 @@ for t = 1:tot_time
             %             end
             
             %----------FIND NOISE----------------------------------%
-            vx_noise = randn(1,1);
-            vy_noise = randn(1,1);
+            vx_noise = 2*rand()-1;
+            vy_noise = 2*rand()-1;
+            
+% %             DELETE
+%             cpkukx = cpkukx + vx_noise
+%             cpkuky = cpkuky + vy_noise
             
             vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
@@ -190,16 +202,28 @@ for t = 1:tot_time
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
-            newdirection = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
-            prevdirection = atan2(vy(i,t),vx(i,t));
-            if prevdirection - newdirection > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-                newdirection = prevdirection - phi_boid;
-            elseif prevdirection - newdirection < -phi_boid
-                newdirection = prevdirection + phi_boid;
+            newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid            
+            prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
+%             if prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
+%                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
+%                 first = first +1
+%             elseif prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 < -phi_boid
+%                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
+%                 second = second + 1
+%             end
+
+            if prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
+                newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
+                first = first +1
+            elseif prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 < -phi_boid
+                newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
+                second = second + 1
             end
             
-            x(i,t+1) = x(i,t) + v_evolve*cos(newdirection);
-            y(i,t+1) = y(i,t) + v_evolve*sin(newdirection);
+            %newdirection(i,t) = prevdirection(i,t);
+            
+            x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
+            y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));
             %            x(i,t+1) = x(i,t) + v_evolve*vx(i,t+1)/vxy_norm;
             %           y(i,t+1) = y(i,t) + v_evolve*vy(i,t+1)/vxy_norm;
             

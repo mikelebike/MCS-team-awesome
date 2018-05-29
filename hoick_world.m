@@ -192,7 +192,7 @@ for t = 1:tot_time
             
             vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
-
+            
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t);
@@ -202,7 +202,8 @@ for t = 1:tot_time
             %----------CORRECT FOR TURNING ANGLE-----------------%
             newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
             prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
-
+            
+            
             delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
             if (abs(delta_angle)>phi_boid/2)
                 if (delta_angle>0)
@@ -213,6 +214,17 @@ for t = 1:tot_time
                     second = second + 1;
                 end
             end
+            
+            %DELETE Old code snippet for correcting angle. THIS DOES
+            %NOT WORK!!!!! ONLY FOR REFERENCE IF NEEDED OR NEW BUG
+            %FOUND
+            %             if wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
+            %                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
+            %                 first = first +1
+            %             elseif wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) < -phi_boid
+            %                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
+            %                 second = second + 1
+            %             end
             
             %DELETE this just prints the sum of directions, to check for bias
             sum(sum(wrapToPi(newdirection)));

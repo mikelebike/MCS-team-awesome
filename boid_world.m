@@ -98,11 +98,11 @@ for t = 1:tot_time
         index_b=boid_index(i,:);
         
         %Looking at all the boids inside the repulsion radius
-        inside_R_r = r(r<R_r);
+        inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
         
         
         %------ SEE IF ANY BOIDS IN REPULSION AREA--------
-        if ~isempty(inside_R_r)      %If there are any boids inside the repulsion radius
+        if not(inside_R_r==0)      %If there are any boids inside the repulsion radius
             vx_b = 0;
             vy_b = 0;
             
@@ -129,8 +129,8 @@ for t = 1:tot_time
             vy_bo=0;
             if ~isempty(index_vbo)
                 for k = 1:length(index_vbo)
-                vx_bo = -vx_boid(index_vbo(k))/length(index_vbo);
-                vy_bo = -vy_boid(index_vbo(k))/length(index_vbo);
+                vx_bo = -vx_boid(index_vbo(k));
+                vy_bo = -vy_boid(index_vbo(k));
                 end
             end
            
@@ -143,8 +143,8 @@ for t = 1:tot_time
             if ~isempty(index_vba)
                 %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                 for k = 1:length(index_vba)
-                vx_ba = vx_ba + rx_hat(index_vba(k))/length(index_vba);
-                vy_ba = vy_ba + ry_hat(index_vba(k))/length(index_vba);
+                vx_ba = vx_ba + rx_hat(index_vba(k));
+                vy_ba = vy_ba + ry_hat(index_vba(k));
                 end
             end
             %Define velocity unit vector v_b

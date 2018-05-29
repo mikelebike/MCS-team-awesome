@@ -49,10 +49,10 @@ marker1 = 14;
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);    %define initial x coordiantes for boids
-x(:,1) = L/2*rand(N_boid + N_hoick,1);       %initial positions
+x(:,1) = L/2+L/4*rand(N_boid + N_hoick,1);       %initial positions
 
 y = zeros(N_boid + N_hoick,tot_time+1);    %define initial y coordinates for boids
-y(:,1) = L/2*rand(N_boid + N_hoick,1);       %initial positions
+y(:,1) = L/2+L/4*rand(N_boid + N_hoick,1);       %initial positions
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);

@@ -5,10 +5,8 @@ close all
 clear all
 
 %DELETE
-cpkukx = 0;
-cpkuky = 0;
-second = 0;
-first = 0;
+second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
+first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
 
 %LEGEND FOR STUFF
 % CHECK
@@ -18,17 +16,17 @@ first = 0;
 
 %INITIALIZE PARAMETERS
 L=400;                  %System size
-N_boid = 1;            %Nr of boids
+N_boid = 10;            %Nr of boids
 N_hoick = 1;            %Nr of predators
 R_r = 1;                %repulsion radius
-R_o = 10;                %Orientation radius
-R_a = 13;               %Attraction radius
+R_o = 25;                %Orientation radius
+R_a = 10;               %Attraction radius
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
-v_hoick = 1.9;            % TEMPORARY value. Speed of hoick
+v_hoick = 1.4;            % TEMPORARY value. Speed of hoick
 A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
 A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
-phi_boid  = 0.01;%A_m/(2*v_evolve^2); %turning angle for boids
+phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
 phi_hoick = pi/4;      %turning angle for hoicks
 theta_boid = A_s/R_a^2;      %viewing angle
 theta_hoick = pi;          %viewing angle
@@ -37,7 +35,7 @@ theta_hoick = pi;          %viewing angle
 
 e_boid = 0.00001;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
-warm_up = 0;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+warm_up = 2000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 10000 + warm_up;       %Totalt time
 
 
@@ -50,10 +48,10 @@ marker1 = 14;
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);    %define initial x coordiantes for boids
-x(:,1) = L/2+L/4*rand(N_boid + N_hoick,1);       %initial positions
+x(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;       %initial positions
 
 y = zeros(N_boid + N_hoick,tot_time+1);    %define initial y coordinates for boids
-y(:,1) = L/2+L/4*rand(N_boid + N_hoick,1);       %initial positions
+y(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;       %initial positions
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);
@@ -66,10 +64,12 @@ ry_hat = zeros(N_boid + N_hoick,1);    %unit vector for y component
 
 prevdirection = zeros(N_boid + N_hoick, tot_time+1);
 newdirection = zeros(N_boid + N_hoick, tot_time+1);
-newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
+%newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
+    
+    
     
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
@@ -185,16 +185,14 @@ for t = 1:tot_time
             %                 y(i,:) = NaN;
             %             end
             
-            %----------FIND NOISE----------------------------------%
-            vx_noise = 2*rand()-1;
-            vy_noise = 2*rand()-1;
             
-% %             DELETE
-%             cpkukx = cpkukx + vx_noise
-%             cpkuky = cpkuky + vy_noise
+            %----------FIND NOISE----------------------------------%
+            vx_noise = 2*rand-1;
+            vy_noise = 2*rand-1;
             
             vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
+
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t);
@@ -202,25 +200,23 @@ for t = 1:tot_time
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
-            newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid            
+            newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
             prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
-%             if prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-%                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
-%                 first = first +1
-%             elseif prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 < -phi_boid
-%                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
-%                 second = second + 1
-%             end
 
-            if prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-                newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
-                first = first +1
-            elseif prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 < -phi_boid
-                newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
-                second = second + 1
+            delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
+            if (abs(delta_angle)>phi_boid/2)
+                if (delta_angle>0)
+                    newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) + phi_boid/2);
+                    first = first +1;
+                else
+                    newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) - phi_boid/2);
+                    second = second + 1;
+                end
             end
             
-            %newdirection(i,t) = prevdirection(i,t);
+            %DELETE this just prints the sum of directions, to check for bias
+            sum(sum(wrapToPi(newdirection)));
+            
             
             x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
             y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));

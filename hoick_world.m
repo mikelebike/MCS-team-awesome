@@ -12,7 +12,7 @@ clear all
 
 %INITIALIZE PARAMETERS
 L=400;                  %System size
-N_boid = 40;            %Nr of boids
+N_boid = 1;            %Nr of boids
 N_hoick = 1;            %Nr of predators
 R_r = 1;                %repulsion radius
 R_o = 10;                %Orientation radius
@@ -22,17 +22,17 @@ v_hoick = 8;            % TEMPORARY value. Speed of hoick
 A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
 A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
-phi_boid  = pi/8;%A_m/(2*v_evolve^2); %turning angle for boids
+phi_boid  = 0.00000000000000001;%A_m/(2*v_evolve^2); %turning angle for boids
 phi_hoick = pi/4;      %turning angle for hoicks
-theta_boid = A_s/R_a^2;      %viewing angle
+theta_boid = 0.000000000001;%A_s/R_a^2;      %viewing angle
 theta_hoick = pi;          %viewing angle
 
 
 
-e_boid = 0.1;           %Sensitivity to noise
+e_boid = 0.00001;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
-warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time = 1000;       %Totalt time
+warm_up = 0;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+tot_time = 1000 + warm_up;       %Totalt time
 
 
 %DEFINE HELPFUL VECTORS
@@ -92,28 +92,28 @@ for t = 1:tot_time
                 continue
             end
             
-            index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
+            index_b = boid_index(i,:) %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
-
+            
             if not(inside_R_r==0)
-
+                
                 vx_b = 0;
                 vy_b = 0;
                 
-                lesum = 0;
-
-
+                lesum = 0.000000000000000000001;
+                
+                
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
-           %         if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_evolve*cos(phi_boid/2)
+                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_evolve*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
                         lesum = lesum + r(i,index_b(j));
-          %          end
+                    end
                 end
                 vx_b = -vx_b/lesum;
                 vy_b = -vy_b/lesum;
@@ -127,10 +127,10 @@ for t = 1:tot_time
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
                         %SEE IF WITHIN VIEWING ANGLE
-                %        if vx(i,t)*rx_hat(i,index_b(k)) +vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(phi_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) +vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
                             vx_bo = -vx(index_vbo(k));
                             vy_bo = -vy(index_vbo(k));
-                %        end
+                        end
                     end
                     
                 end
@@ -146,10 +146,10 @@ for t = 1:tot_time
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
                         %SEE IF WITHIN VIEWING ANGLE
-                  %      if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(phi_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
                             vx_ba = vx_ba + rx_hat(i,index_vba(k));
                             vy_ba = vy_ba + ry_hat(i,index_vba(k));
-                  %      end
+                        end
                     end
                 end
                 %----DEFINE VELOCITY UNIT VECTOR v_b----
@@ -187,29 +187,32 @@ for t = 1:tot_time
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = vx_b + e_boid*vx_noise; %+ vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b + e_boid*vy_noise; %+ vy_p;% + omega_boid*v_pf_y_boid(i,t);
-            vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001; 
+            vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
+            %----------CORRECT FOR TURNING ANGLE-----------------%
             newdirection = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
-%             prevdirection = atan2(vy(i,t),vx(i,t));
-%             if prevdirection - newdirection > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-%                 newdirection = prevdirection - phi_boid;
-%             elseif prevdirection - newdirection < -phi_boid
-%                 newdirection = prevdirection + phi_boid;
-%             end
+            prevdirection = atan2(vy(i,t),vx(i,t));
+            if prevdirection - newdirection > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
+                newdirection = prevdirection - phi_boid;
+            elseif prevdirection - newdirection < -phi_boid
+                newdirection = prevdirection + phi_boid;
+            end
             
-%             x(i,t+1) = x(i,t) + v_evolve*cos(newdirection);
-%             y(i,t+1) = y(i,t) + v_evolve*sin(newdirection);
-            x(i,t+1) = x(i,t) + v_evolve*vx(i,t+1)/vxy_norm;
-            y(i,t+1) = y(i,t) + v_evolve*vy(i,t+1)/vxy_norm;
+            x(i,t+1) = x(i,t) + v_evolve*cos(newdirection);
+            y(i,t+1) = y(i,t) + v_evolve*sin(newdirection);
+            %            x(i,t+1) = x(i,t) + v_evolve*vx(i,t+1)/vxy_norm;
+            %           y(i,t+1) = y(i,t) + v_evolve*vy(i,t+1)/vxy_norm;
             
             %---------PLOT BOIDS---------------------------
-            x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
-            y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
-            
-            plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
-            axis([0 L 0 L]);
-            hold on
-            plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
+            if t > warm_up
+                x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
+                y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
+                
+                plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
+                axis([0 L 0 L]);
+                hold on
+                plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
+            end
             
         else %predator
             %FIND VELOCITY FOR HOICK
@@ -226,10 +229,12 @@ for t = 1:tot_time
             x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
             y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
             
-            plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
-            axis([0 L 0 L]);
-            hold on
-            plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
+            if t > warm_up
+                plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
+                axis([0 L 0 L]);
+                hold on
+                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
+            end
         end
     end
     

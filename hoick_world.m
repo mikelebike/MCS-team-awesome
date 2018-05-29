@@ -212,10 +212,10 @@ for t = 1:tot_time
 %                 second = second + 1
 %             end
 
-            if prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
+            if wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
                 first = first +1
-            elseif prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1)) + phi_boid/2 < -phi_boid
+            elseif wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) < -phi_boid
                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
                 second = second + 1
             end

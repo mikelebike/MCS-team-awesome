@@ -19,16 +19,17 @@ R_o = 10;                %Orientation radius
 R_a = 13;               %Attraction radius
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
 v_hoick = 8;            % TEMPORARY value. Speed of hoick
+A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
-theta_boid  = pi/4;      %turning angle for boids
+theta_boid  = A_s/R_a^2; %turning angle for boids
 theta_hoick = pi/4;      %turning angle for hoicks
-phi_boid = pi;           %viewing angle
+phi_boid = A_m/(2*v_evolve^2);      %viewing angle
 phi_hoick = pi;          %viewing angle
 
-A_s = 0;                 % CHECK do we use this? Possible sighting area
-A_m = 0;                 % CHECK do we use this? Possible movement area
 
-e_boid = 0.1;           %Sensitivity to noise
+
+e_boid = 0;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 1000;       %Totalt time

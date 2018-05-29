@@ -19,17 +19,17 @@ R_o = 10;                %Orientation radius
 R_a = 13;               %Attraction radius
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
 v_hoick = 8;            % TEMPORARY value. Speed of hoick
-A_s = 1000*R_r^2;        % TEMPORARY value. Possible sighting area
-A_m = 25*R_r^2;          % TEMPORARY value. Possible movement area
+A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
-theta_boid  = A_s/R_a^2;      %turning angle for boids
+theta_boid  = A_s/R_a^2; %turning angle for boids
 theta_hoick = pi/4;      %turning angle for hoicks
 phi_boid = A_m/(2*v_evolve^2);      %viewing angle
 phi_hoick = pi;          %viewing angle
 
 
 
-e_boid = 0.1;           %Sensitivity to noise
+e_boid = 0;           %Sensitivity to noise
 omega_boid = 0;         %Sensitivity to predator
 warm_up = 10000;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 1000;       %Totalt time
@@ -108,12 +108,11 @@ for t = 1:tot_time
 
 
                 for j=1:inside_R_r
-                    %SEE IF WITHIN VIEWING ANGLE TEMPORARY deleted this for
-                    %now
-                    if vx(i,t)*rx_hat(index_b(j),i) +vy(i,t)*ry_hat(index_b(j),i)> v_evolve*cos(theta_boid/2)
-                        vx_b = vx_b + rx_hat(index_b(j),i);
-                        vy_b = vy_b + ry_hat(index_b(j),i);
-                        lesum = lesum + r(index_b(j),i);
+                    %SEE IF WITHIN VIEWING ANGLE
+                    if vx(i,t)*rx_hat(i,index_b(j)) +vy(i,t)*ry_hat(i,index_b(j))> v_evolve*cos(theta_boid/2)
+                        vx_b = vx_b + rx_hat(i,index_b(j));
+                        vy_b = vy_b + ry_hat(i,index_b(j));
+                        lesum = lesum + r(i,index_b(j));
                     end
                 end
                 vx_b = -vx_b/lesum;
@@ -127,8 +126,11 @@ for t = 1:tot_time
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
-                        vx_bo = -vx(index_vbo(k));
-                        vy_bo = -vy(index_vbo(k));
+                        %SEE IF WITHIN VIEWING ANGLE
+                        if vx(i,t)*rx_hat(i,index_b(k)) +vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
+                            vx_bo = -vx(index_vbo(k));
+                            vy_bo = -vy(index_vbo(k));
+                        end
                     end
                     
                 end
@@ -143,8 +145,11 @@ for t = 1:tot_time
                 if not(isempty(index_vba))
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
-                        vx_ba = vx_ba + rx_hat(i,index_vba(k));
-                        vy_ba = vy_ba + ry_hat(i,index_vba(k));
+                        %SEE IF WITHIN VIEWING ANGLE
+                        if vx(i,t)*rx_hat(i,index_b(k)) +vy(i,t)*ry_hat(i,index_b(k))> v_evolve*cos(theta_boid/2)
+                            vx_ba = vx_ba + rx_hat(i,index_vba(k));
+                            vy_ba = vy_ba + ry_hat(i,index_vba(k));
+                        end
                     end
                 end
                 %----DEFINE VELOCITY UNIT VECTOR v_b----

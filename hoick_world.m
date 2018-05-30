@@ -93,7 +93,7 @@ for t = 1:tot_time
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
-            inside_R_r = r_boid(r_boid < R_r); %find indicies for boids inside repulsion radius
+            inside_R_r = r_boid(i,(r_boid(i,:) < R_r)); %find indicies for boids inside repulsion radius
             
             
             %------ SEE IF ANY BOIDS IN REPULSION AREA--------
@@ -122,8 +122,8 @@ for t = 1:tot_time
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
-                        vx_bo = -vx(index_vbo(k))/length(index_vbo);
-                        vy_bo = -vy(index_vbo(k))/length(index_vbo);
+                        vx_bo = -vx(index_vbo(k),t)/length(index_vbo);
+                        vy_bo = -vy(index_vbo(k),t)/length(index_vbo);
                     end
                     
                 end
@@ -143,8 +143,8 @@ for t = 1:tot_time
                 end
                 %----DEFINE VELOCITY UNIT VECTOR v_b----
                 v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
-                vx_b = (vx_ba + vx_ba)/v_b;
-                vy_b = (vy_ba + vy_ba)/v_b;
+                vx_b = (vx_ba + vx_bo)/v_b;
+                vy_b = (vy_ba + vy_bo)/v_b;
                 
                 
             end
@@ -188,7 +188,7 @@ for t = 1:tot_time
             hold on
             plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
             
-        else %predator
+        else %Individual is a hoick
             %FIND VELOCITY FOR HOICK
             vx(i,t+1) = rx_hat(i,hoick_index(1)); 
             vy(i,t+1) = ry_hat(i,hoick_index(1));

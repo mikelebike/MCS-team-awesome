@@ -4,6 +4,7 @@
 % [] - in hoick world, get boids and hoicks to interact
 % [] - fix velocity for predator
 % [] - fix bug on velocity for boids
+% [] - implementera periodic boundary conditions
 %
 % MAJA 
 % 
@@ -11,7 +12,7 @@
 % [] - iaushdiuhasiuhd 
 % 
 % CHRISHANI
-% [] - Fixa figur 1
+% [] - Fixa figur 1       %Kommentar: det behövs fixas med buggarna för att göra detta 
 % 
 % AVKLARAT
 % 

@@ -22,8 +22,6 @@ function [X_allTime,frequency_info]=helpSim_FinalProject(p,simulations,R_o_value
             
             %Limiation according to figure 1
             p.theta_boid = 1000/(p.R_a^2);
- 
-            
             
             %Many Simulations
             for s=1:simulations   

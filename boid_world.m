@@ -44,11 +44,11 @@ if make_figure
     marker1 = 14;
     
     if make_movie
-    filename = 'Final Project.avi';
-    video = VideoWriter(filename);
-    video.FrameRate = 3;
-    video.Quality = 100;
-    open(video);
+        filename = 'Final Project.avi';
+        video = VideoWriter(filename);
+        video.FrameRate = 3;
+        video.Quality = 100;
+        open(video);
     end   
 end
 
@@ -56,10 +56,15 @@ end
 %------INITIALIZE BOIDS-------%
 % x(i,j) gives the x coordinate of the ith particle at time j
 x_boid=zeros(N_boid,tot_time+1);    %define initial x coordiantes for boids
-x_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
+%x_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
+x_boid(:,1)=200/2+200/5*rand(N_boid,1);       %initial positions
+
 
 y_boid=zeros(N_boid,tot_time+1);    %define initial y coordinates for boids
-y_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
+%y_boid(:,1)=L/2+L/5*rand(N_boid,1);       %initial positions
+
+y_boid(:,1)=200/2+200/5*rand(N_boid,1);       %initial positions
+
 
 v_boid = zeros(N_boid,tot_time+1);   %velocity vector for all boids
 vy_boid = zeros(N_boid,tot_time+1);
@@ -68,7 +73,11 @@ vx_boid = zeros(N_boid,tot_time+1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
-        
+    
+%     if t>warm_up
+%         disp(t)
+%     end
+%         
     rx_temp = repmat(x_boid(:,1)',numel(x_boid(:,1)),1); %create matrix of all boids positions in x
     ry_temp = repmat(y_boid(:,1)',numel(y_boid(:,1)),1); %create matrix of all boids positions in y
     
@@ -90,15 +99,15 @@ for t = 1:tot_time
 
     %--------------ITERATE OVER BOIDS-------------------
     for i=1:N_boid
-        
-        if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
-            continue
-        end
+%         
+%         if isnan(x_boid(i,t))    %Skips this iteration if the value is NaN (dead Boid)
+%             continue
+%         end
 
         index_b=boid_index(i,:);
         
         %Looking at all the boids inside the repulsion radius
-        inside_R_r = r(r<R_r);
+        inside_R_r = r(i,r(i,:)<R_r);
         
         
         %------ SEE IF ANY BOIDS IN REPULSION AREA--------
@@ -129,8 +138,8 @@ for t = 1:tot_time
             vy_bo=0;
             if ~isempty(index_vbo)
                 for k = 1:length(index_vbo)
-                vx_bo= -vx_boid(index_vbo(k))/length(index_vbo);
-                vy_bo = -vy_boid(index_vbo(k))/length(index_vbo);
+                vx_bo= -vx_boid(index_vbo(k),t)/length(index_vbo);
+                vy_bo = -vy_boid(index_vbo(k),t)/length(index_vbo);
                 end
             end
            
@@ -149,8 +158,8 @@ for t = 1:tot_time
             end
             %Define velocity unit vector v_b
             v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
-            vx_b = (vx_ba + vx_ba)/v_b;
-            vy_b = (vy_ba + vy_ba)/v_b;
+            vx_b = (vx_ba + vx_bo)/v_b;
+            vy_b = (vy_ba + vy_bo)/v_b;
             
             
         end
@@ -171,8 +180,8 @@ for t = 1:tot_time
         vx_boid(i,t+1)=vx_boid(i,t+1)/vxy_norm;
         vy_boid(i,t+1)=vy_boid(i,t+1)/vxy_norm;
                 
-        x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1)/vxy_norm;
-        y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1)/vxy_norm;
+        x_boid(i,t+1) = x_boid(i,t) + v_evolve*vx_boid(i,t+1);
+        y_boid(i,t+1) = y_boid(i,t) + v_evolve*vy_boid(i,t+1);
         
 
         %GRAPHICS

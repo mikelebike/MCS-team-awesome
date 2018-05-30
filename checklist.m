@@ -1,12 +1,15 @@
 % PROBLEMS TO FIX  
 % 
-% [] - implement predator
-% [] - in hoick world, get boids and hoicks to interact
 % [] - fix velocity for predator
-% [] - fix bug on velocity for boids
+% [] - for boids, interaction with predator is said to not exist if
+%      repulsion is detemined. If this is implemented they behave badly.
+%      Should it be fixed of should we just ignore this condition?
+%
 %
 % MAJA 
-% 
+% [] - implement predator
+% [] - in hoick world, get boids and hoicks to interact
+%
 % MIKE
 % [] - iaushdiuhasiuhd 
 % 
@@ -14,7 +17,7 @@
 % [] - Fixa figur 1
 % 
 % AVKLARAT
-% 
+% [x] - fix bug on velocity for boids
 % 
 % 
 % 

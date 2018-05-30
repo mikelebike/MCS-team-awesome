@@ -11,7 +11,7 @@
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
-hoick_mode=0;
+hoick_mode=1;
 make_figure=1;
 make_movie=0;
 
@@ -48,7 +48,7 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 20;            %Nr of boids
+    N_boid = 80;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
     R_r = 1;                %repulsion radius
@@ -58,16 +58,16 @@ else
     A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
     A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     
-    v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
-    v_hoick = 3;            % TEMPORARY value. Speed of hoick
+    v_evolve = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
+    v_hoick = 6;            % TEMPORARY value. Speed of hoick
     phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
     phi_hoick = pi/4;      %turning angle for hoicks
     theta_boid = A_s/R_a^2;      %viewing angle
     theta_hoick = pi;          %viewing angle
-    omega_boid = 1;         %Sensitivity to predator
+    omega_boid = 10;         %Sensitivity to predator
     e_boid = 0.00001;       %Sensitivity to noise
     
-    warm_up = 0;            %Warm up time
+    warm_up = 300;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
 end
@@ -124,6 +124,8 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
+    predator_full = 0;
+    
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
@@ -153,6 +155,9 @@ for t = 1:tot_time
                 continue
             end
             
+            vx_p = 0;
+            vy_p = 0;
+            
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
@@ -167,7 +172,7 @@ for t = 1:tot_time
                 vx_b = 0;
                 vy_b = 0;
                 
-                lesum = 0.000000000000000000001;
+                lesum = 0.000000000000000000001;                    %make lesum non-zero to avoid division by zero
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
@@ -219,32 +224,34 @@ for t = 1:tot_time
                 vy_b = (vy_ba + vy_bo)/v_b;
                 
                 
-            end
-            
-            %---------FIND A BOIDS INTERACTION WITH PREDATORS--------------%
-            
-            vx_p = 0;
-            vy_p = 0;
-            
-            if(hoick_mode)
-                %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
-                if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
-                    %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
-                    %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
-                    vx_p = rx_hat(i,N_boid + N_hoick);
-                    vy_p = ry_hat(i,N_boid + N_hoick);
+                
+                %---------FIND A BOIDS INTERACTION WITH PREDATORS--------------%
+                
+                
+                if(hoick_mode)
+                    if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
+                        %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
+                        %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
+                        vx_p = -rx_hat(i,N_boid + N_hoick);
+                        vy_p = -ry_hat(i,N_boid + N_hoick);
+                    end
+                    
+                    if (r(N_boid + N_hoick,i) <= R_catch && not(predator_full))
+                        x(i,t:end) = NaN;
+                        y(i,t:end) = NaN;
+                        predator_full = 1;
+                    end
                 end
                 
-                if r(N_boid + N_hoick,i) <= R_catch % TEMPORARY value. boid dies if hoick comes close
-                    x(i,[t:end]) = NaN;
-                    y(i,[t:end]) = NaN;
-                end
-                %end
+                
+                
             end
             
+            
+            
             %----------FIND NOISE----------------------------------%
-            vx_noise = 2*rand-1;
-            vy_noise = 2*rand-1;
+            vx_noise = 2*randn;
+            vy_noise = 2*randn;
             
             vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
@@ -254,6 +261,7 @@ for t = 1:tot_time
             vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
+            
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
             newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
@@ -328,8 +336,9 @@ for t = 1:tot_time
     vy_sum=sum(vy(1:N_boid,t));
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
-    
-    
+    if(t>warm_up)
+        polarisation(t)
+    end
     
     %Making the video
     if make_figure && t>warm_up

@@ -11,7 +11,7 @@
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
-hoick_mode=0;
+hoick_mode=1;
 make_figure=1;
 make_movie=0;
 
@@ -52,14 +52,14 @@ else
     N_hoick = 1;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
-    R_o_boid = 7;                %Orientation radius
-    R_a_boid = 14;               %Attraction radius
+    R_o_boid = 16;                %Orientation radius
+    R_a_boid = 25;               %Attraction radius
     
     A_s = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
     A_m = 25*R_r_boid^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     
-    v_boid = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
-    v_hoick = 3;            % TEMPORARY value. Speed of hoick
+    v_boid = 3;           % CHECK(no evolution for boids) the evolvable speed of boid
+    v_hoick = 4;            % TEMPORARY value. Speed of hoick
     phi_boid  = A_m/(2*v_boid^2); %turning angle for boids
     phi_hoick = pi/4;      %turning angle for hoicks
     theta_boid = A_s/R_a_boid^2;      %viewing angle
@@ -179,7 +179,8 @@ for t = 1:tot_time
                 end
                 vx_b = -vx_b/lesum;
                 vy_b = -vy_b/lesum;
-                %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
+                
+            %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
             else
                 
                 %Find v_o - orientation
@@ -221,7 +222,7 @@ for t = 1:tot_time
                 
             end
             
-            %---------FIND A BOIDS INTERACTION WITH PREDATORS--------------%
+            %---------FIND BOIDS INTERACTIONS WITH PREDATORS--------------%
             
             vx_p = 0;
             vy_p = 0;
@@ -231,8 +232,8 @@ for t = 1:tot_time
                 if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
                     %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
                     %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
-                    vx_p = rx_hat(i,N_boid + N_hoick);
-                    vy_p = ry_hat(i,N_boid + N_hoick);
+                    vx_p = -rx_hat(i,N_boid + N_hoick);
+                    vy_p = -ry_hat(i,N_boid + N_hoick);
                 end
                 
                 if r(N_boid + N_hoick,i) <= R_catch % TEMPORARY value. boid dies if hoick comes close
@@ -304,11 +305,150 @@ for t = 1:tot_time
             vx(i,t+1) = rx_hat(i,hoick_index(1));
             vy(i,t+1) = ry_hat(i,hoick_index(1));
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
+           
+                   %----------ITERATE OVER BOIDS---------%
             
+            if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Boid)
+                continue
+            end
+            
+            index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
+            
+            %-----------------FIND INTERACTION WITH OTHER BOIDS------------
+            
+            inside_R_r = sum(r_boid(:,i) < R_r_boid); %find how many boids inside repulsion radius
+            
+            %---------SEE IF ANY BOIDS IN REPULSION AREA--------
+            lesum = 0; %initializes lesum here just to make if-loop for interaction with predator work
+            
+            if not(inside_R_r==0)
+                
+                vx_b = 0;
+                vy_b = 0;
+                
+                lesum = 0.000000000000000000001;
+                
+                for j=1:inside_R_r
+                    %SEE IF WITHIN VIEWING ANGLE
+                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_boid*cos(theta_boid/2)
+                        vx_b = vx_b + rx_hat(i,index_b(j));
+                        vy_b = vy_b + ry_hat(i,index_b(j));
+                        lesum = lesum + r(i,index_b(j));
+                    end
+                end
+                vx_b = -vx_b/lesum;
+                vy_b = -vy_b/lesum;
+                
+            %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
+            else
+                
+                %Find v_o - orientation
+                index_vbo = find(r_hoick(i,:) >= R_r_hoick & r_hoick(i,:) < R_o_hoick);               %Index for the boids in orientation radius
+                vx_bo = 0;
+                vy_bo = 0;
+                if not(isempty(index_vbo))
+                    for k = 1:length(index_vbo)
+                        %SEE IF WITHIN VIEWING ANGLE
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_hoick*cos(theta_hoick/2)
+                            vx_bo = -vx(index_vbo(k));
+                            vy_bo = -vy(index_vbo(k));
+                        end
+                    end
+                end
+                
+                
+            vx_p = 0;
+            vy_p = 0;
+            
+            if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
+                %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
+                %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
+                vx_p = -rx_hat(i,N_boid + N_hoick);
+                vy_p = -ry_hat(i,N_boid + N_hoick);
+            end
+
+                
+                
+                %Find v_a - attraction
+                index_vba = find(r_hoick(i,:) >= R_o_hoick & r_hoick(i,:) < R_a_hoick);
+                vx_ba = 0;
+                vy_ba = 0;
+                
+                %CHECK IF THERE ARE ANY BOIDS IN ATTRACTION AREA
+                
+                if not(isempty(index_vba))
+                    %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
+                    for k = 1:length(index_vba)
+                        %SEE IF WITHIN VIEWING ANGLE
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_hoick*cos(theta_hoick/2)
+                            vx_ba = vx_ba + rx_hat(i,index_vba(k));
+                            vy_ba = vy_ba + ry_hat(i,index_vba(k));
+                        end
+                    end
+                end
+                %----DEFINE VELOCITY UNIT VECTOR v_b----
+                v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
+                vx_b = (vx_ba + vx_bo)/v_b;
+                vy_b = (vy_ba + vy_bo)/v_b;
+                
+                
+            end
+            
+            %---------FIND BOIDS INTERACTIONS WITH PREDATORS--------------%
+            
+            vx_p = 0;
+            vy_p = 0;
+            
+            if(hoick_mode)
+                %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
+                if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
+                    %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
+                    %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
+                    vx_p = -rx_hat(i,N_boid + N_hoick);
+                    vy_p = -ry_hat(i,N_boid + N_hoick);
+                end
+                
+                if r(N_boid + N_hoick,i) <= R_catch % TEMPORARY value. boid dies if hoick comes close
+                    x(i,[t:end]) = NaN;
+                    y(i,[t:end]) = NaN;
+                end
+                %end
+            end
+            
+            
+            %----------FIND NOISE----------------------------------%
+            vx_noise = 2*rand-1;
+            vy_noise = 2*rand-1;
+            
+            vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
+            vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
+            
+            
+            %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
+            vx(i,t+1) = vx_b + e_hoick*vx_noise + omega_hoick*vx_p;% + omega_boid*v_pf_x_boid(i,t);
+            vy(i,t+1) = vy_b + e_hoick*vy_noise + omega_hoick*vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
+            
+            %----------CORRECT FOR TURNING ANGLE-----------------%
+            newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
+            prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
+            
+            delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
+            if (abs(delta_angle)>phi_hoick/2)
+                if (delta_angle>0)
+                    newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) + phi_hoick/2);
+                    first = first +1;
+                else
+                    newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) - phi_hoick/2);
+                    second = second + 1;
+                end
+            end
+
             %UPDATE HOICKS POSITION
-            x(i,t+1) = x(i,t) + v_hoick*vx(i,t+1)/vxy_norm;
-            y(i,t+1) = y(i,t) + v_hoick*vy(i,t+1)/vxy_norm;
-            
+            x(i,t+1) = x(i,t) + v_hoick*cos(newdirection(i,t+1));
+            y(i,t+1) = y(i,t) + v_hoick*sin(newdirection(i,t+1));
+                        
+            %---------GRAPHICS--------%
             %-----------PLOT HOICK----------------------
             if make_figure
                 x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa

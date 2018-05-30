@@ -9,7 +9,10 @@
     
 %function [polarisation]=hoick_world(p)
 
+%-------- CONTROL VARIABLES----------%
 phase_mode = 0;
+hoick_mode=0;
+
   
 if phase_mode
     %INITIALIZE PARAMETERS
@@ -65,7 +68,7 @@ else
     e_boid = 0.00001;       %Sensitivity to noise
 
     warm_up = 0;            %Warm up time
-    tot_time = 10000;       %Totalt time
+    tot_time = 1000 + warm_up;       %Totalt time
 
     make_figure=1;
     make_movie=0;
@@ -73,12 +76,13 @@ end
 
 %---Temporary variables---%
 R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is successful
-hoick_mode=0;
+
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
 first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
 %--------------------------%
+
 
 %GRAPHICS STUFF
 if make_figure
@@ -267,17 +271,6 @@ for t = 1:tot_time
                     second = second + 1;
                 end
             end
-            
-            %DELETE Old code snippet for correcting angle. THIS DOES
-            %NOT WORK!!!!! ONLY FOR REFERENCE IF NEEDED OR NEW BUG
-            %FOUND
-            %             if wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-            %                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
-            %                 first = first +1
-            %             elseif wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) < -phi_boid
-            %                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
-            %                 second = second + 1
-            %             end
             
             %DELETE this just prints the sum of directions, to check for bias
             %sum(sum(wrapToPi(newdirection)));  

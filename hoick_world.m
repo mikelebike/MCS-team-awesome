@@ -48,7 +48,7 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 1;            %Nr of boids
+    N_boid = 20;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
     R_r = 1;                %repulsion radius
@@ -284,7 +284,7 @@ for t = 1:tot_time
             
             %---------GRAPHICS--------%
             %---------PLOT BOIDS---------------------------
-            if make_movie && t>warm_up
+            if make_figure && t>warm_up
                 x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
                 y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
                 

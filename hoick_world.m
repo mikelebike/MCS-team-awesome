@@ -22,14 +22,14 @@ if phase_mode
     N_boid = p.N_boid;
     N_hoick = p.N_hoick;
     
-    R_r = p.R_r;
-    R_o = p.R_o;
-    R_a = p.R_a;
+    R_r_boid = p.R_r_boid;
+    R_o_boid = p.R_o_boid;
+    R_a_boid = p.R_a_boid;
     
     A_s = p.A_s;
     A_m = p.A_m;
     
-    v_evolve = p.v_evolve;
+    v_boid = p.v_boid;
     v_hoick=p.v_hoick;
     theta_boid = p.theta_boid;
     theta_hoick = p.theta_hoick;
@@ -51,18 +51,18 @@ else
     N_boid = 20;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
-    R_r = 1;                %repulsion radius
-    R_o = 7;                %Orientation radius
-    R_a = 14;               %Attraction radius
+    R_r_boid = 1;                %repulsion radius
+    R_o_boid = 7;                %Orientation radius
+    R_a_boid = 14;               %Attraction radius
     
-    A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
-    A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
+    A_s = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+    A_m = 25*R_r_boid^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     
-    v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
+    v_boid = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = 3;            % TEMPORARY value. Speed of hoick
-    phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
+    phi_boid  = A_m/(2*v_boid^2); %turning angle for boids
     phi_hoick = pi/4;      %turning angle for hoicks
-    theta_boid = A_s/R_a^2;      %viewing angle
+    theta_boid = A_s/R_a_boid^2;      %viewing angle
     theta_hoick = pi;          %viewing angle
     omega_boid = 1;         %Sensitivity to predator
     e_boid = 0.00001;       %Sensitivity to noise
@@ -73,7 +73,7 @@ else
 end
 
 %---Temporary variables---%
-R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is successful
+R_catch = R_r_boid +1;       % TEMPORARY value. Radius describing when predation is successful
 
 
 %DELETE
@@ -157,7 +157,7 @@ for t = 1:tot_time
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
             
-            inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
+            inside_R_r = sum(r_boid(:,i) < R_r_boid); %find how many boids inside repulsion radius
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
             lesum = 0; %initializes lesum here just to make if-loop for interaction with predator work
@@ -171,7 +171,7 @@ for t = 1:tot_time
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_evolve*cos(theta_boid/2)
+                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_boid*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
                         lesum = lesum + r(i,index_b(j));
@@ -183,13 +183,13 @@ for t = 1:tot_time
             else
                 
                 %Find v_o - orientation
-                index_vbo = find(r_boid(i,:) >= R_r & r_boid(i,:) < R_o);               %Index for the boids in orientation radius
+                index_vbo = find(r_boid(i,:) >= R_r_boid & r_boid(i,:) < R_o_boid);               %Index for the boids in orientation radius
                 vx_bo = 0;
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_boid*cos(theta_boid/2)
                             vx_bo = -vx(index_vbo(k));
                             vy_bo = -vy(index_vbo(k));
                         end
@@ -197,7 +197,7 @@ for t = 1:tot_time
                 end
                 
                 %Find v_a - attraction
-                index_vba = find(r_boid(i,:) >= R_o & r_boid(i,:) < R_a);
+                index_vba = find(r_boid(i,:) >= R_o_boid & r_boid(i,:) < R_a_boid);
                 vx_ba = 0;
                 vy_ba = 0;
                 
@@ -207,7 +207,7 @@ for t = 1:tot_time
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_boid*cos(theta_boid/2)
                             vx_ba = vx_ba + rx_hat(i,index_vba(k));
                             vy_ba = vy_ba + ry_hat(i,index_vba(k));
                         end
@@ -228,7 +228,7 @@ for t = 1:tot_time
             
             if(hoick_mode)
                 %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
-                if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
+                if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
                     %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
                     %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
                     vx_p = rx_hat(i,N_boid + N_hoick);
@@ -279,8 +279,8 @@ for t = 1:tot_time
             %
             
             
-            x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
-            y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));
+            x(i,t+1) = x(i,t) + v_boid*cos(newdirection(i,t+1));
+            y(i,t+1) = y(i,t) + v_boid*sin(newdirection(i,t+1));
             
             %---------GRAPHICS--------%
             %---------PLOT BOIDS---------------------------

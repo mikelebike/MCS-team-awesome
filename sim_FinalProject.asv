@@ -14,12 +14,17 @@ L=400;                  %system size
 N_boid = 30;            %Nr of boids
 N_hoick = 1;            %Nr of hoicks
 dt = 0.1;               %CHECK Time-step, why is this used?
-R_r = 1;                %repulsion radius
+R_r_boid = 1;                %repulsion radius
 
-R_o = 10;                %Orientation radius
-R_a = 13;               %attraction radius
+R_o_boid = 10;                %Orientation radius
+R_a_boid = 13;               %attraction radius
 
-v_evolve = 2;           %the evolvable speed of boid
+R_r_hoick = 1;                %repulsion radius
+
+R_o_hoick = 10;                %Orientation radius
+R_a_hoick = 13;               %attraction radius
+
+v_boid = 2;           %the evolvable speed of boid
 
 
 theta_boid  = pi/4;     %turning angle for boids
@@ -27,14 +32,18 @@ theta_hoick = pi/4;     %turning angle for hoicks
 phi_boid = pi;        %viewing angle
 phi_hoick = pi;       %viewing angle
 
-A_s =2*phi_boid*v_evolve^2;            %Possible sighting area
-A_m =theta_boid*R_a^2;                 %Possible movement area
+A_s_boid =2*phi_boid*v_boid^2;            %Possible sighting area
+A_m_boid =theta_boid*R_a_boid^2;           %Possible movement area
+
+A_s_hoick =2*phi_hoick*v_hoick^2;            %Possible sighting area
+A_m_hoick =theta_hoick*R_a_hoick^2;           %Possible movement area
 
 omega_boid = 1;             %Sensitivity to predator
+omega_hoick = 1;
 
 %Values for figure 1 from paper
-theta_boid = 1000/(R_a^2);
-phi_boid = 25/v_evolve^2;
+theta_boid = 1000/(R_a_boid^2);
+phi_boid = 25/v_boid^2;
 
 e_boid = 0.2;          %sensitivity to noise
 warm_up =999;          %warm up 
@@ -49,11 +58,13 @@ phase=0;
 make_figure=0;
 make_movie=0;
 
-p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r',R_r,'R_o',R_o,'R_a',R_a,...
-    'v_evolve',v_evolve,'theta_boid',theta_boid,'theta_hoick',theta_hoick,...
-    'phi_boid',phi_boid,'phi_hoick',phi_hoick,'A_s',A_s,'A_m',A_m,'e_boid',e_boid,...
+p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r_boid',R_r_boid,'R_o_boid',R_o_boid,'R_a_boid',R_a_boid,...
+    'v_boid',v_boid,'theta_boid',theta_boid,'theta_hoick',theta_hoick,...
+    'phi_boid',phi_boid,'phi_hoick',phi_hoick,'A_s_boid',A_s_boid,'A_m_boid',A_m_boid,'e_boid',e_boid,...
     'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie,...
-    'warm_up',warm_up,'N_hoick',N_hoick,'v_hoick',v_hoick,'omega_boid',omega_boid);
+    'warm_up',warm_up,'N_hoick',N_hoick,'v_hoick',v_hoick,'omega_boid',omega_boid,...
+    'R_r_hoick',R_r_hoick,'R_o_hoick',R_o_hoick,'R_a_hoick',R_a_hoick,...
+    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick);
 
 %-----------------------------------------------------------------------%
 %--------------------------SIMULATIONS----------------------------------%
@@ -67,8 +78,8 @@ if one_sim
     p.R_o =8;
     p.R_a=15;
     %Values for figure 1 from paper
-    p.theta_boid = 1000/(R_a^2);
-    p.phi_boid = 25/v_evolve^2;
+    p.theta_boid = 1000/(R_a_boid^2);
+    p.phi_boid = 25/v_boid^2;
     
     polarisation = boid_world(p);
     
@@ -90,17 +101,17 @@ if multi_sim
  
    
     %Kom ihåg att specificiera N_hoicks!
-    N_hoick=p.N_hoick;
+    N_hoick=0;
     
     changing_values = 13:4:30;
-    p.phi_boid = 25/v_evolve^2;
+    p.phi_boid = 25/v_boid^2;
 
     figure(2)
     hold on;
     for i=1:length(changing_values)
         
         p.R_a=changing_values(i);
-        p.theta_boid = 1000/(R_a^2);
+        p.theta_boid = 1000/(R_a_boid^2);
     
         polarisation(i,:)=hoick_world(p);
         p_sim =plot(time_vec,polarisation(i,:));
@@ -130,12 +141,12 @@ if phase
     R_o_values =1:1:30;
     R_a_values=13:1:30;
     
-    p.phi_boid = 25/v_evolve^2;
-    p.theta_boid = 1000/(R_a^2);
-    p.phi_boid = 25/v_evolve^2;
+    p.phi_boid = 25/v_boid^2;
+    p.theta_boid = 1000/(R_a_boid^2);
+    p.phi_boid = 25/v_boid^2;
     
     %Kom ihåg att ändra på N_hoicks
-    N_hoick = p.N_hoick; 
+    N_hoick =0; 
 
     [X_allTime, frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values);
 

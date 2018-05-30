@@ -19,26 +19,26 @@ first = 0;              %measures how often we enter the second loop, i.e. turn 
 % OPTIMIZE
 
 %INITIALIZE PARAMETERS
-L=400;                  %System size
-N_boid = 10;            %Nr of boids
-N_hoick = 1;            %Nr of predators
-R_r = 1;                %repulsion radius
-R_o = 7;                %Orientation radius
-R_a = 14;               %Attraction radius
+L=400;                   %System size
+N_boid = 10;             %Nr of boids
+N_hoick = 1;             %Nr of predators
+R_r = 1;                 %repulsion radius
+R_o = 15;                %Orientation radius
+R_a = 30;                %Attraction radius
 R_catch = R_r + 1;       % TEMPORARY value. Radius describing when predation is successful
-v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
-v_hoick = 3;            % TEMPORARY value. Speed of hoick
+v_evolve = 2;            % CHECK(no evolution for boids) the evolvable speed of boid
+v_hoick = 3;             % TEMPORARY value. Speed of hoick
 A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
 A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
 
 phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
-phi_hoick = pi/4;      %turning angle for hoicks
-theta_boid = A_s/R_a^2;      %viewing angle
-theta_hoick = pi;          %viewing angle
+phi_hoick = pi/4;               %turning angle for hoicks
+theta_boid = A_s/R_a^2;         %viewing angle
+theta_hoick = pi;               %viewing angle
 
 e_boid = 0.00001;       %Sensitivity to noise
 omega_boid = 1;         %Sensitivity to predator
-warm_up = 0;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+warm_up = 10000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 10000 + warm_up;       %Totalt time
 
 %GRAPHICS STUFF
@@ -177,7 +177,7 @@ for t = 1:tot_time
             
             if(hoick_mode)
             %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
-                if r(N_boid + N_hoick,i) < R_a+50 % TEMPORARY value. Calculating v_p
+                if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
                 %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
                 %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
                 vx_p = rx_hat(i,N_boid + N_hoick);
@@ -219,25 +219,14 @@ for t = 1:tot_time
                 end
             end
             
-            %DELETE Old code snippet for correcting angle. THIS DOES
-            %NOT WORK!!!!! ONLY FOR REFERENCE IF NEEDED OR NEW BUG
-            %FOUND
-            %             if wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) > phi_boid %if the direction angle is bigger than the turning angle, set direction to turning angle
-            %                 newdirection(i,t+1) = prevdirection(i,t) - phi_boid;
-            %                 first = first +1
-            %             elseif wrapTo2Pi(prevdirection(i,t) - wrapTo2Pi(newdirection(i,t+1))) < -phi_boid
-            %                 newdirection(i,t+1) = prevdirection(i,t) + phi_boid;
-            %                 second = second + 1
-            %             end
-            
             %DELETE this just prints the sum of directions, to check for bias
             %sum(sum(wrapToPi(newdirection)));  
             
+            if(t>warm_up)
+            mean(mean(wrapToPi(newdirection(:,1:t+1))))
+            end
             x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
             y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));
-            %DELETE this, old code
-            %           x(i,t+1) = x(i,t) + v_evolve*vx(i,t+1)/vxy_norm;
-            %           y(i,t+1) = y(i,t) + v_evolve*vy(i,t+1)/vxy_norm;
             
             %---------PLOT BOIDS---------------------------
             if t > warm_up

@@ -90,7 +90,7 @@ if multi_sim
  
    
     %Kom ihåg att specificiera N_hoicks!
-    N_hoick=0;
+    N_hoick=p.N_hoick;
     
     changing_values = 13:4:30;
     p.phi_boid = 25/v_evolve^2;
@@ -135,7 +135,7 @@ if phase
     p.phi_boid = 25/v_evolve^2;
     
     %Kom ihåg att ändra på N_hoicks
-    N_hoick =0; 
+    N_hoick = p.N_hoick; 
 
     [X_allTime, frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values);
 

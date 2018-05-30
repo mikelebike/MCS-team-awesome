@@ -25,7 +25,7 @@ function [X_allTime,frequency_info]=helpSim_FinalProject(p,simulations,R_o_value
             
             %Many Simulations
             for s=1:simulations   
-                X_allTime(s,:) = boid_world(p);
+                X_allTime(s,:) = hoick_world(p);
                 endX(s, count2) = X_allTime(s,end);                          %Value at the end
             end
             

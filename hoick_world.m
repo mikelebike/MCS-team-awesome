@@ -2,20 +2,22 @@
 %world
 
 %LEGEND FOR STUFF
-    % CHECK
-    % TEMPORARY
-    % DELETE
-    % OPTIMIZE
-    
+% CHECK
+% TEMPORARY
+% DELETE
+% OPTIMIZE
+
 %function [polarisation]=hoick_world(p)
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
 hoick_mode=0;
+make_figure=1;
+make_movie=0;
 
-  
+
 if phase_mode
-    %INITIALIZE PARAMETERS
+    %TAKE INPUT PARAMETERS IF IN PHASE MODE
     L = p.L;
     N_boid = p.N_boid;
     N_hoick = p.N_hoick;
@@ -28,57 +30,31 @@ if phase_mode
     A_m = p.A_m;
     
     v_evolve = p.v_evolve;
-    v_hoick=p.v_hoick;    
+    v_hoick=p.v_hoick;
     theta_boid = p.theta_boid;
     theta_hoick = p.theta_hoick;
     phi_boid = p.phi_boid;
     phi_hoick = p.phi_hoick;
     omega_boid = p.omega_boid;
     e_boid = p.e_boid;
-
+    
     warm_up = p.warm_up;
     tot_time = p.tot_time;
-
+    
     make_figure=p.make_figure;
     make_movie=p.make_movie;
     
 else
-    close all
-    clear all
-
-<<<<<<< HEAD
-%INITIALIZE PARAMETERS
-L=400;                   %System size
-N_boid = 10;             %Nr of boids
-N_hoick = 1;             %Nr of predators
-R_r = 1;                 %repulsion radius
-R_o = 15;                %Orientation radius
-R_a = 30;                %Attraction radius
-R_catch = R_r + 1;       % TEMPORARY value. Radius describing when predation is successful
-v_evolve = 2;            % CHECK(no evolution for boids) the evolvable speed of boid
-v_hoick = 3;             % TEMPORARY value. Speed of hoick
-A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
-A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
-
-phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
-phi_hoick = pi/4;               %turning angle for hoicks
-theta_boid = A_s/R_a^2;         %viewing angle
-theta_hoick = pi;               %viewing angle
-
-e_boid = 0.00001;       %Sensitivity to noise
-omega_boid = 1;         %Sensitivity to predator
-warm_up = 10000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
-tot_time = 10000 + warm_up;       %Totalt time
-=======
-    %INITIALIZE PARAMETERS
+    
+    %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 10;            %Nr of boids
+    N_boid = 1;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
     R_r = 1;                %repulsion radius
     R_o = 7;                %Orientation radius
     R_a = 14;               %Attraction radius
-
+    
     A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
     A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     
@@ -90,12 +66,10 @@ tot_time = 10000 + warm_up;       %Totalt time
     theta_hoick = pi;          %viewing angle
     omega_boid = 1;         %Sensitivity to predator
     e_boid = 0.00001;       %Sensitivity to noise
-
+    
     warm_up = 0;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
-
-    make_figure=1;
-    make_movie=0;
+    
 end
 
 %---Temporary variables---%
@@ -106,7 +80,6 @@ R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is s
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
 first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
 %--------------------------%
->>>>>>> 397e41b7cf74f97a8175d6dc2597d7fc385f33ab
 
 
 %GRAPHICS STUFF
@@ -120,7 +93,7 @@ if make_figure
         video.FrameRate = 3;
         video.Quality = 100;
         open(video);
-    end   
+    end
 end
 
 %-------------------INITIALIZE BOIDS AND HOICKS-------------------------%
@@ -183,7 +156,7 @@ for t = 1:tot_time
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
-
+            
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
@@ -254,19 +227,19 @@ for t = 1:tot_time
             vy_p = 0;
             
             if(hoick_mode)
-            %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
+                %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
                 if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
-                %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
-                %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
-                vx_p = rx_hat(i,N_boid + N_hoick);
-                vy_p = ry_hat(i,N_boid + N_hoick);
+                    %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
+                    %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
+                    vx_p = rx_hat(i,N_boid + N_hoick);
+                    vy_p = ry_hat(i,N_boid + N_hoick);
                 end
                 
                 if r(N_boid + N_hoick,i) <= R_catch % TEMPORARY value. boid dies if hoick comes close
                     x(i,[t:end]) = NaN;
                     y(i,[t:end]) = NaN;
                 end
-            %end
+                %end
             end
             
             %----------FIND NOISE----------------------------------%
@@ -298,11 +271,14 @@ for t = 1:tot_time
             end
             
             %DELETE this just prints the sum of directions, to check for bias
-            %sum(sum(wrapToPi(newdirection)));  
-            
+            %sum(sum(wrapToPi(newdirection)));
+            %DELETE
             if(t>warm_up)
-            mean(mean(wrapToPi(newdirection(:,1:t+1))))
+                mean(mean(wrapToPi(newdirection(:,1:t+1))));
             end
+            %
+            
+            
             x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
             y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));
             
@@ -311,7 +287,7 @@ for t = 1:tot_time
             if make_movie && t>warm_up
                 x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
                 y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
-
+                
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
                 hold on
@@ -319,7 +295,7 @@ for t = 1:tot_time
                 %title(['Timestep: ',num2str(t)])
                 %xlabel('X position')
                 %ylabel('Y position')
-            end                   
+            end
             
             
         elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
@@ -337,20 +313,20 @@ for t = 1:tot_time
             if make_figure
                 x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
                 y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
-
+                
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
                 hold on
-                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)     
+                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
             end
         end
     end
     
-
-    %----------Calculate polarisation----------%       
+    
+    %----------Calculate polarisation----------%
     vx_sum=sum(vx(1:N_boid,t));
     vy_sum=sum(vy(1:N_boid,t));
-
+    
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     
     
@@ -359,19 +335,19 @@ for t = 1:tot_time
     if make_figure && t>warm_up
         pause(0.00001)
         hold off
-
+        
         if make_movie
-        F(j) = getframe(gcf);  %Gets the current frame
-        writeVideo(video,F(j)); %Puts the frame into the videomovie
+            F(j) = getframe(gcf);  %Gets the current frame
+            writeVideo(video,F(j)); %Puts the frame into the videomovie
         end
     end
     
     pause(0.00001)
-    hold off   
+    hold off
 end
 
 if make_movie
     close(video);  %Closes movie
-end 
-    
+end
+
 %end

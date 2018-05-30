@@ -34,7 +34,7 @@ theta_hoick = pi;          %viewing angle
 
 e_boid = 0.00001;       %Sensitivity to noise
 omega_boid = 1;         %Sensitivity to predator
-warm_up = 2000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+warm_up = 0;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
 tot_time = 10000 + warm_up;       %Totalt time
 
 %GRAPHICS STUFF
@@ -228,8 +228,7 @@ for t = 1:tot_time
             %             end
             
             %DELETE this just prints the sum of directions, to check for bias
-            %sum(sum(wrapToPi(newdirection)));
-            
+            %sum(sum(wrapToPi(newdirection)));  
             
             x(i,t+1) = x(i,t) + v_evolve*cos(newdirection(i,t+1));
             y(i,t+1) = y(i,t) + v_evolve*sin(newdirection(i,t+1));
@@ -248,7 +247,6 @@ for t = 1:tot_time
                 plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
             end
             
-
         elseif i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
             %FIND VELOCITY FOR HOICK

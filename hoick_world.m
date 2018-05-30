@@ -10,10 +10,10 @@
 %function [polarisation]=hoick_world(p)
 
 %-------- CONTROL VARIABLES----------%
-phase_mode = 0;
-hoick_mode=1;
-make_figure=1;
-make_movie=0;
+phase_mode = 1;
+hoick_mode = 0;
+make_figure = 0;
+make_movie = 0;
 
 
 if phase_mode
@@ -30,7 +30,7 @@ if phase_mode
     A_m = p.A_m;
     
     v_evolve = p.v_evolve;
-    v_hoick=p.v_hoick;
+    v_hoick = p.v_hoick;
     theta_boid = p.theta_boid;
     theta_hoick = p.theta_hoick;
     phi_boid = p.phi_boid;
@@ -41,13 +41,13 @@ if phase_mode
     warm_up = p.warm_up;
     tot_time = p.tot_time;
     
-    make_figure=p.make_figure;
-    make_movie=p.make_movie;
+    make_figure = p.make_figure;
+    make_movie = p.make_movie;
     
 else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
-    L=400;                  %System size
+    L = 400;                  %System size
     N_boid = 80;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
@@ -84,7 +84,7 @@ first = 0;              %measures how often we enter the second loop, i.e. turn 
 
 %GRAPHICS STUFF
 if make_figure
-    fig=figure;
+    fig = figure;
     marker1 = 14;
     
     if make_movie
@@ -155,7 +155,7 @@ for t = 1:tot_time
                 continue
             end
             
-            vx_p = 0;
+            vx_p = 0; %initialize velocity created from escaping from predator
             vy_p = 0;
             
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
@@ -268,8 +268,8 @@ for t = 1:tot_time
             prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
             
             delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
-            if (abs(delta_angle)>phi_boid/2)
-                if (delta_angle>0)
+            if (abs(delta_angle) > phi_boid/2)
+                if (delta_angle > 0)
                     newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) + phi_boid/2);
                     first = first +1;
                 else
@@ -281,7 +281,7 @@ for t = 1:tot_time
             %DELETE this just prints the sum of directions, to check for bias
             %sum(sum(wrapToPi(newdirection)));
             %DELETE
-            if(t>warm_up)
+            if(t > warm_up)
                 mean(mean(wrapToPi(newdirection(:,1:t+1))));
             end
             %
@@ -319,8 +319,8 @@ for t = 1:tot_time
             
             %-----------PLOT HOICK----------------------
             if make_figure
-                x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
-                y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
+                x(i,t+1) = mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
+                y(i,t+1) = mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
                 
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
@@ -336,12 +336,12 @@ for t = 1:tot_time
     vy_sum=sum(vy(1:N_boid,t));
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
-    if(t>warm_up)
+    if(t > warm_up)
         polarisation(t)
     end
     
     %Making the video
-    if make_figure && t>warm_up
+    if make_figure && t > warm_up
         pause(0.00001)
         hold off
         

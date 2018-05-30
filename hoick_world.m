@@ -73,6 +73,7 @@ end
 
 %---Temporary variables---%
 R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is successful
+hoick_mode=0;
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -223,6 +224,7 @@ for t = 1:tot_time
             vx_p = 0;
             vy_p = 0;
             
+            if(hoick_mode)
             %if lesum == 0.000000000000000000001 % CHECK, get wierd behaviour if this is implemented. if repulsion was determined, do not care for predator
                 if r(N_boid + N_hoick,i) < R_a+50 % TEMPORARY value. Calculating v_p
                 %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
@@ -236,7 +238,7 @@ for t = 1:tot_time
                     y(i,[t:end]) = NaN;
                 end
             %end
-            
+            end
             
             %----------FIND NOISE----------------------------------%
             vx_noise = 2*rand-1;
@@ -247,8 +249,6 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx_b = 0; %TEMPORARY just to check interaction with hoick
-            vy_b = 0;
             vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
@@ -302,9 +302,9 @@ for t = 1:tot_time
                 %xlabel('X position')
                 %ylabel('Y position')
             end                   
-        
-
-    elseif i > N_boid && t> warm_up%introduce hoick to the world after warm up is finished
+            
+            
+        elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
             %FIND VELOCITY FOR HOICK
             vx(i,t+1) = rx_hat(i,hoick_index(1));

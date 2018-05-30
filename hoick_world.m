@@ -4,13 +4,9 @@
 close all
 clear all
 
-
-
 %CONTROL VARIABLES
 debug_mode = 1;
 hoick_mode = 0;
-
-
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -29,7 +25,7 @@ N_hoick = 1;            %Nr of predators
 R_r = 1;                %repulsion radius
 R_o = 7;                %Orientation radius
 R_a = 14;               %Attraction radius
-R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is successful
+R_catch = R_r + 1;       % TEMPORARY value. Radius describing when predation is successful
 v_evolve = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
 v_hoick = 3;            % TEMPORARY value. Speed of hoick
 A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
@@ -204,8 +200,6 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx_b = 0; %TEMPORARY just to check interaction with hoick
-            vy_b = 0;
             vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;% + omega_boid*v_pf_x_boid(i,t);
             vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;

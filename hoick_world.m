@@ -32,9 +32,17 @@ phi_hoick = pi/4;      %turning angle for hoicks
 theta_boid = A_s/R_a^2;      %viewing angle
 theta_hoick = pi;          %viewing angle
 
+<<<<<<< HEAD
 e_boid = 0.00001;       %Sensitivity to noise
 omega_boid = 1;         %Sensitivity to predator
 warm_up = 2000;         %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+=======
+
+
+e_boid = 0.00001;           %Sensitivity to noise
+omega_boid = 0;         %Sensitivity to predator
+warm_up = 0;        %CHECK do we really need this? %Warm up time, 15 minutes in the paper
+>>>>>>> 83eecd3727186a60cc8e0f6462131ca912808dae
 tot_time = 10000 + warm_up;       %Totalt time
 
 %GRAPHICS STUFF
@@ -101,6 +109,7 @@ for t = 1:tot_time
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
+
             inside_R_r = sum(r_boid(:,i) < R_r); %find how many boids inside repulsion radius
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
@@ -247,8 +256,12 @@ for t = 1:tot_time
                 plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
             end
             
+<<<<<<< HEAD
         elseif i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
+=======
+        else %Individual is a hoick
+>>>>>>> 83eecd3727186a60cc8e0f6462131ca912808dae
             %FIND VELOCITY FOR HOICK
             vx(i,t+1) = rx_hat(i,hoick_index(1));
             vy(i,t+1) = ry_hat(i,hoick_index(1));

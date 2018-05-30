@@ -10,8 +10,8 @@ close all;
 
 
 %INITIALIZE PARAMETERS
-L=800;                  %system size
-N_boid = 40;            %Nr of boids
+L=400;                  %system size
+N_boid = 30;            %Nr of boids
 dt = 0.1;               %CHECK Time-step, why is this used?
 R_r = 1;                %repulsion radius
 
@@ -23,15 +23,20 @@ v_evolve = 2;           %the evolvable speed of boid
 
 theta_boid  = pi/4;     %turning angle for boids
 theta_hoick = pi/4;     %turning angle for hoicks
-phi_boid = pi/2;        %viewing angle
-phi_hoick = pi/2;       %viewing angle
+phi_boid = pi;        %viewing angle
+phi_hoick = pi;       %viewing angle
 
 A_s =2*phi_boid*v_evolve^2;            %Possible sighting area
 A_m =theta_boid*R_a^2;                 %Possible movement area
 
-e_boid = 0.01;          %sensitivity to noise
-warm_up =5000;          %warm up 
-tot_time=10000;         %Totalt time
+
+%Values for figure 1 from paper
+theta_boid = 1000/(R_a^2);
+phi_boid = 25/v_evolve^2;
+
+e_boid = 0.2;          %sensitivity to noise
+warm_up =999;          %warm up 
+tot_time=1000;         %Totalt time
 
 
 %SIMULATION PARAMETERS
@@ -57,7 +62,7 @@ if one_sim
     p.make_figure=1;
     p.make_movie=0;
     
-    p.R_o =15;
+    p.R_o =8;
     p.R_a=15;
     %Values for figure 1 from paper
     p.theta_boid = 1000/(R_a^2);
@@ -115,10 +120,12 @@ if phase
     p.make_figure=0;
     p.make_movie=0;
     
-    simulations=10;
-    R_o_values =1:0.5:30;
-    R_a_values=13:0.5:30;
+    simulations=3;
+    R_o_values =1:1:30;
+    R_a_values=13:1:30;
     
+    p.phi_boid = 25/v_evolve^2;
+    p.theta_boid = 1000/(R_a^2);
     p.phi_boid = 25/v_evolve^2;
 
     [X_allTime, frequency_info]=helpSim_FinalProject(p,simulations,R_o_values,R_a_values);

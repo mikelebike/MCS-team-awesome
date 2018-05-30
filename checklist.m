@@ -1,10 +1,15 @@
 % PROBLEMS TO FIX  
 % 
 % [] - fix velocity for predator
+<<<<<<< HEAD
 % [] - for boids, interaction with predator is said to not exist if
 %      repulsion is detemined. If this is implemented they behave badly.
 %      Should it be fixed of should we just ignore this condition?
 %
+=======
+% [] - fix bug on velocity for boids
+% [] - implementera periodic boundary conditions
+>>>>>>> 83eecd3727186a60cc8e0f6462131ca912808dae
 %
 % MAJA 
 % [] - implement predator
@@ -14,7 +19,7 @@
 % [] - iaushdiuhasiuhd 
 % 
 % CHRISHANI
-% [] - Fixa figur 1
+% [] - Fixa figur 1       %Kommentar: det behövs fixas med buggarna för att göra detta 
 % 
 % AVKLARAT
 % [x] - fix bug on velocity for boids

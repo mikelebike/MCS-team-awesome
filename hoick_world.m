@@ -18,6 +18,7 @@ phase_mode = 0;
 hoick_mode = 1;
 hoick_type_mode=1;
 make_movie = 0;
+type=1;
 
 if(not(phase_mode))
     make_figure = 1;
@@ -67,16 +68,16 @@ else
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
     N_boid = 45;            %Nr of boids
-    N_hoick = 2;            %Nr of predators
+    N_hoick = 4;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
-    R_o_boid = 1;                %Orientation radius
+    R_o_boid = 7;                %Orientation radius
     R_a_boid = 13;               %Attraction radius
 
     
     R_r_hoick = 1;                %repulsion radius
-    R_o_hoick = 16;                %Orientation radius
-    R_a_hoick = 25;               %Attraction radius
+    R_o_hoick = 4;                %Orientation radius
+    R_a_hoick = 14;               %Attraction radius
   
     
     A_s_boid = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
@@ -86,17 +87,17 @@ else
     
     v_boid = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = 0.7*pi;%A_m_boid/(2*v_boid^2); %turning angle for boids
+    phi_boid  = 0.6*pi;%A_m_boid/(2*v_boid^2); %turning angle for boids
     phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
     theta_boid = 0.6*pi;%A_s_boid/(R_a_boid)^2;      %viewing angle
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
-    omega_boid = 100;         %Boid sensitivity to predator
-    omega_hoick=1;          %Hoick sensitivity to prey
+    omega_boid = 2;         %Boid sensitivity to predator
+    omega_hoick=0.5;          %Hoick sensitivity to prey
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 100;            %Warm up time
+    warm_up = 1000;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
     
@@ -117,7 +118,6 @@ first = 0;              %measures how often we enter the second loop, i.e. turn 
 %--------Setting type and type variables-----%
 %types: 1=group,2=independant individuals, 3=Rivals
 if hoick_type_mode
-    type=1;
     type_variables = Hoick_types(type,v_hoick);
 
     R_r_hoick = type_variables.R_r_hoick;               %Repulsion radius
@@ -153,12 +153,19 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
-x(N_boid+1:end, warm_up+1+predator_delay_time) = L*rand(N_hoick,1);     %set random x-position for hoicks once it's introduced to the world
+x(:,1) = L*rand(N_boid + N_hoick,1);% L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
-y(N_boid+1:end, warm_up+1+predator_delay_time) = L*rand(N_hoick,1);     %set random y-position for hoicks once it's introduced to the world
+y(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
+
+
+% 
+% x(N_boid+1, warm_up+1+predator_delay_time) = 100;
+% x(N_boid+1, warm_up+1+predator_delay_time) = 400;
+% y(N_boid+1, warm_up+1+predator_delay_time) = 100;
+% y(N_boid+1, warm_up+1+predator_delay_time) = 400;
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);
@@ -171,7 +178,7 @@ ry_hat = zeros(N_boid + N_hoick,1);    %unit vector for y component
 
 prevdirection = zeros(N_boid + N_hoick, tot_time+1);
 newdirection = zeros(N_boid + N_hoick, tot_time+1);
-newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
+newdirection(:,1) = 0;%2*pi*rand(N_boid + N_hoick, 1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
@@ -285,8 +292,8 @@ for t = 1:tot_time
             if(hoick_mode)
                 for j = 1:N_hoick
                     if r(N_boid + j,i) < R_flee
-                        vx_p = -rx_hat(i,N_boid + j);
-                        vy_p = -ry_hat(i,N_boid + j);
+                        vx_p = vx_p -rx_hat(i,N_boid + j);
+                        vy_p = vx_p -ry_hat(i,N_boid + j);
                     end
                 end
             end
@@ -309,14 +316,14 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;
+            vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
             newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
-            prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
+            prevdirection(i,t) = newdirection(i,t);
             
             delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
             if (abs(delta_angle) > phi_boid/2)
@@ -469,8 +476,8 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b + e_hoick*vx_noise + omega_hoick*vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b + e_hoick*vy_noise + omega_hoick*vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vx(i,t+1) = vx_b + e_hoick*vx_noise + omega_hoick*vx_p;
+            vy(i,t+1) = vy_b + e_hoick*vy_noise + omega_hoick*vy_p;
             
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
@@ -490,8 +497,8 @@ for t = 1:tot_time
 
             
             %UPDATE HOICKS POSITION
-            x(i,t+1) = x(i,t) + v_hoick*vx_p;%cos(newdirection(i,t+1));
-            y(i,t+1) = y(i,t) + v_hoick*vy_p;%sin(newdirection(i,t+1));
+            x(i,t+1) = x(i,t) + v_hoick*cos(newdirection(i,t+1));
+            y(i,t+1) = y(i,t) + v_hoick*sin(newdirection(i,t+1));
             
             x(i,t+1)=mod(x(i,t+1),L); % Jumps from the right of the box to the left or vice versa
             y(i,t+1)=mod(y(i,t+1),L); % Jumps from the top of the box to the bottom or vice versa
@@ -515,7 +522,7 @@ for t = 1:tot_time
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     if(t > warm_up)
-        polarisation(t);
+        polarisation(t)
     end
     
     %Making the video

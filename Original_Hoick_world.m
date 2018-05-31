@@ -245,9 +245,7 @@ for t = 1:tot_time
                         predator_full = 1;
                     end
                 end
-                
-                
-                
+                          
             end
             
             
@@ -261,8 +259,8 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b + e_boid*vx_noise + omega_boid*vx_p;% + omega_boid*v_pf_x_boid(i,t);
-            vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
+            vx(i,t+1) = vx_b + e_boid*vx_noise + omega_hoick*vx_p;% + omega_boid*v_pf_x_boid(i,t);
+            vy(i,t+1) = vy_b + e_boid*vy_noise + omega_hoick*vy_p;% + omega_boid*v_pf_y_boid(i,t);
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
             

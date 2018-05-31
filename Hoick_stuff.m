@@ -21,8 +21,7 @@ N_hoick = 8;            %Nr of predators
 
 
 %----SEVERAL INDEPENDANT INDIVIDUALS----%
-
-    
+  
     R_r = 1;               %Repulsion radius
     R_o = 0;                %Orientation radius
     R_a = 0;                %Attraction radius

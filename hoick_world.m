@@ -16,17 +16,13 @@ clear all;
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
 hoick_mode = 1;
+hoick_type_mode=1;
 make_movie = 0;
 
 if(not(phase_mode))
     make_figure = 1;
 else
     make_figure = 0;
-end
-
-if hoick_mode
-    
-    
 end
 
 if phase_mode
@@ -107,15 +103,35 @@ else
 end
 
 %------ NEW VARIABLES -------%
-
 R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
 R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
 predator_delay_time = 5;          %delay for when predator will arrive.
+
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
 first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
 %--------------------------%
+
+
+%--------Setting type and type variables-----%
+%types: 1=group,2=independant individuals, 3=Rivals
+if hoick_type_mode
+    type=1;
+    type_variables = Hoick_types(type,v_hoick);
+
+    R_r_hoick = type_variables.R_r_hoick;               %Repulsion radius
+    R_o_hoick = type_variables.R_o_hoick;               %Orientation radius
+    R_a_hoick = type_variables.R_a_hoick;               %Attraction radius
+
+    A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
+    A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
+
+    phi_hoick = type_variables.phi_hoick;               %turning angle for hoicks
+    theta_hoick = type_variables.theta_hoick;           %viewing angle
+end
+%----------------------------%
+    
 
 
 %GRAPHICS STUFF
@@ -499,7 +515,7 @@ for t = 1:tot_time
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     if(t > warm_up)
-        polarisation(t)
+        polarisation(t);
     end
     
     %Making the video

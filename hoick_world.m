@@ -16,7 +16,6 @@ clear all;
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
 hoick_mode = 1;
-make_figure = 1;
 make_movie = 0;
 
 if(not(phase_mode))
@@ -71,11 +70,11 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 20;            %Nr of boids
-    N_hoick = 3;            %Nr of predators
+    N_boid = 45;            %Nr of boids
+    N_hoick = 2;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
-    R_o_boid = 7;                %Orientation radius
+    R_o_boid = 1;                %Orientation radius
     R_a_boid = 13;               %Attraction radius
 
     
@@ -91,30 +90,27 @@ else
     
     v_boid = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = A_m_boid/(2*v_boid^2); %turning angle for boids
+    phi_boid  = 0.7*pi;%A_m_boid/(2*v_boid^2); %turning angle for boids
     phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
-    theta_boid = A_s_boid/(R_a_boid)^2;      %viewing angle
+    theta_boid = 0.6*pi;%A_s_boid/(R_a_boid)^2;      %viewing angle
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
-    omega_boid = 1;         %Boid sensitivity to predator
+    omega_boid = 100;         %Boid sensitivity to predator
     omega_hoick=1;          %Hoick sensitivity to prey
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 1000;            %Warm up time
+    warm_up = 100;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
     
 end
 
 %------ NEW VARIABLES -------%
-predator_full = zeros(1,N_hoick);
 
 R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
-R_flee = R_a_boid+50;           %TEMPORARY Radius for boids fleeing hoicks
-
-predator_fear_range = 35;           %from how far prey can see predator.
-predator_delay_time = 30;          %delay for when predator will arrive.
+R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
+predator_delay_time = 5;          %delay for when predator will arrive.
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -141,12 +137,12 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  %TEMPORARY initial positions
-x(N_boid+1:end, warm_up + 1) = L*rand(N_hoick,1);     %set random x-position for hoicks once it's introduced to the world
+x(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(N_boid+1:end, warm_up+1+predator_delay_time) = L*rand(N_hoick,1);     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  %TEMPORARY initial positions
-y(N_boid+1:end, warm_up + 1) = L*rand(N_hoick,1);     %set random y-position for hoicks once it's introduced to the world
+y(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(N_boid+1:end, warm_up+1+predator_delay_time) = L*rand(N_hoick,1);     %set random y-position for hoicks once it's introduced to the world
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);
@@ -163,8 +159,6 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 
 %ITERATE OVER TIME
 for t = 1:tot_time
-    
-    predator_full = 0;
     
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
@@ -196,9 +190,6 @@ for t = 1:tot_time
             if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Boid)
                 continue
             end
-            
-            vx_p = 0; %initialize velocity created from escaping from predator
-            vy_p = 0;
             
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
@@ -276,22 +267,29 @@ for t = 1:tot_time
             vy_p = 0;
             
             if(hoick_mode)
-                if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
-                    %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
-                    %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
-                    vx_p = -rx_hat(i,N_boid + N_hoick);
-                    vy_p = -ry_hat(i,N_boid + N_hoick);
-                end             
+                for j = 1:N_hoick
+                    if r(N_boid + j,i) < R_flee
+                        vx_p = -rx_hat(i,N_boid + j);
+                        vy_p = -ry_hat(i,N_boid + j);
+                    end
+                end
             end
             
+            %------- NORMALISE -------%
+            
+            predator_norm = (vx_p^2+vy_p^2)^0.5+0.0000000000000001;
+            vx_p = vx_p/predator_norm;
+            vy_p = vy_p/predator_norm;
             
             
             %----------FIND NOISE----------------------------------%
             vx_noise = 2*randn;
             vy_noise = 2*randn;
             
-            vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
-            vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
+            %-------NORMALISE---------%
+            noise_norm = (vx_noise^2 + vy_noise^2)^0.5+0.00000000000001;
+            vx_noise = vx_noise/noise_norm;
+            vy_noise = vy_noise/noise_norm;
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%

@@ -49,7 +49,7 @@ else
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
     N_boid = 20;            %Nr of boids
-    N_hoick = 1;            %Nr of predators
+    N_hoick = 4;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
     R_o_boid = 16;                %Orientation radius
@@ -74,7 +74,7 @@ end
 
 %---Temporary variables---%
 R_catch = R_r_boid +1;       % TEMPORARY value. Radius describing when predation is successful
-
+R_flee = R_a +                      %Radius for   
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -139,9 +139,9 @@ for t = 1:tot_time
     [r_sort_boid,boid_index] = sort(r_boid'); %Sort the vector for finding closest boids
     boid_index = boid_index';                 %Turn index right so every row represents a boid
     
-    r_hoick = r([N_boid + N_hoick:end],:);      %Vector defining distances between boids and hoick
-    [r_sort_hoick,hoick_index] = sort(r_hoick');
-    hoick_index = hoick_index';
+    r_hoick = r([N_boid + N_hoick:end],:);          %Vector defining distances between boids and hoick
+    [r_sort_hoick,hoick_index] = sort(r_hoick');    %
+    hoick_index = hoick_index';                     %Every row represents a boid or hoick 
     
     %----------ITERATE OVER POPULATION-----
     for i=1:N_boid + N_hoick
@@ -306,13 +306,14 @@ for t = 1:tot_time
             vy(i,t+1) = ry_hat(i,hoick_index(1));
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
            
-                   %----------ITERATE OVER BOIDS---------%
             
-            if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Boid)
+            %----------ITERATE OVER BOIDS---------%
+            
+            if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Hoick)
                 continue
             end
             
-            index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
+            index_b = hoick_index(i,:); %Get indicies sorted by size from boid/hoick i to other boids/hoicks
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
             
@@ -343,21 +344,34 @@ for t = 1:tot_time
             else
                 
                 %Find v_o - orientation
-                index_vbo = find(r_boid(i,:) >= R_r_boid & r_boid(i,:) < R_o_boid);               %Index for the boids in orientation radius
+                index_vbo = find(r_hoick(i,:) >= R_r_hoick & r_hoick(i,:) < R_o_hoick);               %Index for the boids in orientation radius
                 vx_bo = 0;
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_boid*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_hoick*cos(theta_hoick/2)
                             vx_bo = -vx(index_vbo(k));
                             vy_bo = -vy(index_vbo(k));
                         end
                     end
                 end
                 
+                
+            vx_p = 0;
+            vy_p = 0;
+            
+            if r(N_boid + N_hoick,i) < R_a_boid + 50 % TEMPORARY value. Calculating v_p
+                %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
+                %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
+                vx_p = -rx_hat(i,N_boid + N_hoick);
+                vy_p = -ry_hat(i,N_boid + N_hoick);
+            end
+
+                
+                
                 %Find v_a - attraction
-                index_vba = find(r_boid(i,:) >= R_o_boid & r_boid(i,:) < R_a_boid);
+                index_vba = find(r_hoick(i,:) >= R_o_hoick & r_hoick(i,:) < R_a_hoick);
                 vx_ba = 0;
                 vy_ba = 0;
                 
@@ -367,7 +381,7 @@ for t = 1:tot_time
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_hoick*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_hoick*cos(theta_hoick/2)
                             vx_ba = vx_ba + rx_hat(i,index_vba(k));
                             vy_ba = vy_ba + ry_hat(i,index_vba(k));
                         end

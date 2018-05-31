@@ -49,7 +49,7 @@ else
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
     N_boid = 20;            %Nr of boids
-    N_hoick = 1;            %Nr of predators
+    N_hoick = 4;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
     R_o_boid = 16;                %Orientation radius
@@ -65,7 +65,7 @@ else
     theta_boid = A_s/R_a_boid^2;      %viewing angle
     theta_hoick = pi;          %viewing angle
     omega_boid = 1;         %Sensitivity to predator
-    e_boid = 0.00001;       %Sensitivity to noise
+    e_boid = 0.00001;       % TEMPORARY Sensitivity to noise
     
     warm_up = 0;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
@@ -73,8 +73,8 @@ else
 end
 
 %---Temporary variables---%
-R_catch = R_r_boid +1;       % TEMPORARY value. Radius describing when predation is successful
-
+R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
+R_flee = R_a_boid+50;           %TEMPORARY Radius for boids fleeing hoicks   
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -101,7 +101,7 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  % TEMPORARY initial positions
+x(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  %TEMPORARY initial positions
 x(N_boid + N_hoick, warm_up + 1) = L*rand();     %set random x-position for hoick once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
@@ -139,9 +139,9 @@ for t = 1:tot_time
     [r_sort_boid,boid_index] = sort(r_boid'); %Sort the vector for finding closest boids
     boid_index = boid_index';                 %Turn index right so every row represents a boid
     
-    r_hoick = r([N_boid + N_hoick:end],:);      %Vector defining distances between boids and hoick
-    [r_sort_hoick,hoick_index] = sort(r_hoick');
-    hoick_index = hoick_index';
+    r_hoick = r([N_boid + N_hoick:end],:);          %Vector defining distances between boids and hoick
+    [r_sort_hoick,hoick_index] = sort(r_hoick');    %
+    hoick_index = hoick_index';                     %Every row represents a boid or hoick 
     
     %----------ITERATE OVER POPULATION-----
     for i=1:N_boid + N_hoick
@@ -160,25 +160,23 @@ for t = 1:tot_time
             inside_R_r = sum(r_boid(:,i) < R_r_boid); %find how many boids inside repulsion radius
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
-            lesum = 0; %initializes lesum here just to make if-loop for interaction with predator work
+            v_b_sum = 0; %initializes v_b_sum here just to make if-loop for interaction with predator work
             
-            if not(inside_R_r==0)
-                
+            if not(inside_R_r==0)               
                 vx_b = 0;
-                vy_b = 0;
-                
-                lesum = 0.000000000000000000001;
+                vy_b = 0;             
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
                     if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_boid*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
-                        lesum = lesum + r(i,index_b(j));
+                        v_b_sum = v_b_sum + r(i,index_b(j));
                     end
                 end
-                vx_b = -vx_b/lesum;
-                vy_b = -vy_b/lesum;
+                vx_b = -vx_b/(v_b_sum+0.0000000001);
+                vy_b = -vy_b/(v_b_sum+0.0000000001);
+                
                 
             %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
             else
@@ -297,47 +295,49 @@ for t = 1:tot_time
                 %xlabel('X position')
                 %ylabel('Y position')
             end
+          
             
-            
+        %---------------------------------------------%
+        %-------------------HOICK---------------------%
+        %---------------------------------------------%
         elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
-            %FIND VELOCITY FOR HOICK
-            vx(i,t+1) = rx_hat(i,hoick_index(1));
-            vy(i,t+1) = ry_hat(i,hoick_index(1));
-            vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
-           
-                   %----------ITERATE OVER BOIDS---------%
             
-            if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Boid)
+            if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Hoick)
                 continue
             end
             
-            index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
+            %FIND VELOCITY FOR HOICK
+            vx(i,t+1) = rx_hat(i,hoick_index(1));
+            vy(i,t+1) = ry_hat(i,hoick_index(1));
+            vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001; 
+            
+            index_b = hoick_index(i,:); %Get indicies sorted by size from boid/hoick i to other boids/hoicks
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
             
             inside_R_r = sum(r_boid(:,i) < R_r_boid); %find how many boids inside repulsion radius
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
-            lesum = 0; %initializes lesum here just to make if-loop for interaction with predator work
+            v_b_sum = 0; %initializes lesum here just to make if-loop for interaction with predator work
             
             if not(inside_R_r==0)
                 
                 vx_b = 0;
                 vy_b = 0;
                 
-                lesum = 0.000000000000000000001;
+                v_b_sum = 0.000000000000000000001;
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
                     if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_boid*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
-                        lesum = lesum + r(i,index_b(j));
+                        v_b_sum = v_b_sum + r(i,index_b(j));
                     end
                 end
-                vx_b = -vx_b/lesum;
-                vy_b = -vy_b/lesum;
+                vx_b = -vx_b/v_b_sum;
+                vy_b = -vy_b/v_b_sum;
                 
             %------ ELSE CHECK BOIDS IN ORIENTATION AND ATTRACTION ZONE %-----
             else

@@ -25,7 +25,7 @@ R_o_hoick = 10;                %Orientation radius
 R_a_hoick = 13;               %attraction radius
 
 v_boid = 2;           %the evolvable speed of boid
-
+v_hoick = 4;            %Hoick speed
 
 theta_boid  = pi/4;     %turning angle for boids
 theta_hoick = pi/4;     %turning angle for hoicks

@@ -9,11 +9,21 @@
 
 %function [polarisation]=hoick_world(p)
 
+
+close all;
+clear all;
+
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
-hoick_mode=0;
-make_figure=1;
-make_movie=0;
+hoick_mode = 1;
+make_figure = 1;
+make_movie = 0;
+
+if(not(phase_mode))
+    make_figure = 1;
+else
+    make_figure = 0;
+end
 
 if hoick_mode
     
@@ -41,6 +51,7 @@ if phase_mode
     
     v_boid = p.v_boid;
     v_hoick=p.v_hoick;
+
     theta_boid = p.theta_boid;
     theta_hoick = p.theta_hoick;
     phi_boid = p.phi_boid;
@@ -53,8 +64,8 @@ if phase_mode
     warm_up = p.warm_up;
     tot_time = p.tot_time;
     
-    make_figure=p.make_figure;
-    make_movie=p.make_movie;
+    make_figure = p.make_figure;
+    make_movie = p.make_movie;
     
 else
     
@@ -66,6 +77,7 @@ else
     R_r_boid = 1;                %repulsion radius
     R_o_boid = 7;                %Orientation radius
     R_a_boid = 13;               %Attraction radius
+
     
     R_r_hoick = 1;                %repulsion radius
     R_o_hoick = 16;                %Orientation radius
@@ -101,7 +113,8 @@ predator_full = zeros(1,N_hoick);
 R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
 R_flee = R_a_boid+50;           %TEMPORARY Radius for boids fleeing hoicks
 
-%---Temporary variables---%
+predator_fear_range = 35;           %from how far prey can see predator.
+predator_delay_time = 200;          %delay for when predator will arrive.
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -111,7 +124,7 @@ first = 0;              %measures how often we enter the second loop, i.e. turn 
 
 %GRAPHICS STUFF
 if make_figure
-    fig=figure;
+    fig = figure;
     marker1 = 14;
     
     if make_movie
@@ -151,6 +164,8 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
+    predator_full = 0;
+    
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
@@ -182,6 +197,9 @@ for t = 1:tot_time
                 continue
             end
             
+            vx_p = 0; %initialize velocity created from escaping from predator
+            vy_p = 0;
+            
             index_b = boid_index(i,:); %Get indicies sorted by size from boid i to other boids
             
             %-----------------FIND INTERACTION WITH OTHER BOIDS------------
@@ -198,6 +216,7 @@ for t = 1:tot_time
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
                     if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) < v_boid*cos(theta_boid/2)
+
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
                         v_b_sum = v_b_sum + r(i,index_b(j));
@@ -217,7 +236,8 @@ for t = 1:tot_time
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_boid*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) < v_boid*cos(theta_boid/2)
+
                             vx_bo = -vx(index_vbo(k));
                             vy_bo = -vy(index_vbo(k));
                         end
@@ -236,6 +256,7 @@ for t = 1:tot_time
                     for k = 1:length(index_vba)
                         %SEE IF WITHIN VIEWING ANGLE
                         if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) < v_boid*cos(theta_boid/2)
+
                             vx_ba = vx_ba + rx_hat(i,index_vba(k));
                             vy_ba = vy_ba + ry_hat(i,index_vba(k));
                         end
@@ -263,9 +284,11 @@ for t = 1:tot_time
                 end             
             end
             
+            
+            
             %----------FIND NOISE----------------------------------%
-            vx_noise = 2*rand-1;
-            vy_noise = 2*rand-1;
+            vx_noise = 2*randn;
+            vy_noise = 2*randn;
             
             vx_noise = vx_noise/(vx_noise^2 + vy_noise^2)^0.5;
             vy_noise = vy_noise/(vx_noise^2 + vy_noise^2)^0.5;
@@ -276,13 +299,14 @@ for t = 1:tot_time
             vy(i,t+1) = vy_b + e_boid*vy_noise + omega_boid*vy_p;% + omega_boid*v_pf_y_boid(i,t);
             vxy_norm = (vx(i,t+1)^2 + vy(i,t+1)^2)^.5+0.000000001;
             
+            
             %----------CORRECT FOR TURNING ANGLE-----------------%
             newdirection(i,t+1) = atan2(vy(i,t+1),vx(i,t+1)); %calculate "wanted" the angle of direction of the boid
             prevdirection(i,t) = newdirection(i,t);%atan2(vy(i,t),vx(i,t));
             
             delta_angle = angdiff(prevdirection(i,t),newdirection(i,t+1));
-            if (abs(delta_angle)>phi_boid/2)
-                if (delta_angle>0)
+            if (abs(delta_angle) > phi_boid/2)
+                if (delta_angle > 0)
                     newdirection(i,t+1) = wrapTo2Pi(prevdirection(i,t) + phi_boid/2);
                     first = first +1;
                 else
@@ -317,8 +341,8 @@ for t = 1:tot_time
             %---------------------------------------------%
             %-------------------HOICK---------------------%
             %---------------------------------------------%
-        elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
-            
+
+        elseif hoick_mode && i > N_boid && t > warm_up+predator_delay_time %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
             if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Hoick)
                 continue
@@ -460,7 +484,6 @@ for t = 1:tot_time
             %---------GRAPHICS--------%
             %-----------PLOT HOICK----------------------
             if make_figure
-       
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
                 hold on
@@ -471,15 +494,17 @@ for t = 1:tot_time
     
     
     %----------Calculate polarisation----------%
-%     vx_sum=sum(vx(1:N_boid,t));
-%     vy_sum=sum(vy(1:N_boid,t));
-%     
-%     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
-%     
-%     
+
+    vx_sum=sum(cos(newdirection(1:N_boid,t+1)));
+    vy_sum=sum(sin(newdirection(1:N_boid,t+1)));
+    
+    polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
+    if(t > warm_up)
+        polarisation(t)
+    end
     
     %Making the video
-    if make_figure && t>warm_up
+    if make_figure && t > warm_up
         pause(0.00001)
         hold off
         

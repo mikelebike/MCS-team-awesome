@@ -329,3 +329,4 @@ end
 if makemovie && plot_sim
     close(video);  %Closes movie
 end
+%end

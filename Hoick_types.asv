@@ -1,9 +1,10 @@
 
-function type_variables=Hoick_types(type,v_hoick) 
+function p=Hoick_types() 
+
 
 
 %----GROUP----%
-if type==1;    
+    
     R_r_hoick = 0;                %Repulsion radius
     R_o_hoick = 8;                %Orientation radius
     R_a_hoick = 15;               %Attraction radius
@@ -17,7 +18,7 @@ if type==1;
     
 
 %----SEVERAL INDEPENDANT INDIVIDUALS----%
-elseif type==2   
+  
     R_r_hoick = 1;               %Repulsion radius
     R_o_hoick = 0;                %Orientation radius
     R_a_hoick = 0;                %Attraction radius
@@ -30,7 +31,7 @@ elseif type==2
 
 
 %----RIVALS----%
-else %type==3
+else
     
     R_r_hoick = 10;               %Repulsion radius
     R_o_hoick = 10;               %Orientation radius (minus orientation)
@@ -42,11 +43,5 @@ else %type==3
     phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
     theta_hoick = A_s_hoick/R_a_hoick^2;            %viewing angle
 
-end
-
-type_variables = struct('R_r_hoick',R_r_hoick,'R_o_hoick',R_o_hoick,'R_a_hoick',R_a_hoick,...
-    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick,'phi_hoick',phi_hoick,...
-    'theta_hoick',theta_hoick);
-
-end
+    end
 

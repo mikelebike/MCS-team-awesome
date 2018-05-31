@@ -114,7 +114,7 @@ R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation 
 R_flee = R_a_boid+50;           %TEMPORARY Radius for boids fleeing hoicks
 
 predator_fear_range = 35;           %from how far prey can see predator.
-predator_delay_time = 200;          %delay for when predator will arrive.
+predator_delay_time = 30;          %delay for when predator will arrive.
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -326,7 +326,7 @@ for t = 1:tot_time
             %---------GRAPHICS--------%
             %---------PLOT BOIDS---------------------------
             if make_figure && t>warm_up
-
+                if ((x(i,t+1)-x(i,t))^2+(y(i,t+1)-y(i,t))^2<=2*v_boid^2)
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
                 hold on
@@ -334,6 +334,7 @@ for t = 1:tot_time
                 %title(['Timestep: ',num2str(t)])
                 %xlabel('X position')
                 %ylabel('Y position')
+                end
             end
             
             
@@ -487,7 +488,7 @@ for t = 1:tot_time
                 plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                 axis([0 L 0 L]);
                 hold on
-                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
+                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',24)
             end
         end
     end

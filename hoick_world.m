@@ -9,11 +9,21 @@
 
 %function [polarisation]=hoick_world(p)
 
+
+close all;
+clear all;
+
 %-------- CONTROL VARIABLES----------%
-phase_mode = 1;
-hoick_mode = 0;
-make_figure = 0;
+phase_mode = 0;
+hoick_mode = 1;
+make_figure = 1;
 make_movie = 0;
+
+if(not(phase_mode))
+    make_figure = 1;
+else
+    make_figure = 0;
+end
 
 
 if phase_mode
@@ -48,18 +58,18 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L = 400;                  %System size
-    N_boid = 80;            %Nr of boids
+    N_boid = 30;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
     R_r = 1;                %repulsion radius
     R_o = 7;                %Orientation radius
-    R_a = 14;               %Attraction radius
+    R_a = 13;               %Attraction radius
     
     A_s = 1000*R_r^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
     A_m = 25*R_r^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     
     v_evolve = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
-    v_hoick = 6;            % TEMPORARY value. Speed of hoick
+    v_hoick = v_evolve*1.55;            % TEMPORARY value. Speed of hoick
     phi_boid  = A_m/(2*v_evolve^2); %turning angle for boids
     phi_hoick = pi/4;      %turning angle for hoicks
     theta_boid = A_s/R_a^2;      %viewing angle
@@ -67,13 +77,17 @@ else
     omega_boid = 10;         %Sensitivity to predator
     e_boid = 0.00001;       %Sensitivity to noise
     
-    warm_up = 300;            %Warm up time
+    warm_up = 0;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
 end
 
 %---Temporary variables---%
 R_catch = R_r +1;       % TEMPORARY value. Radius describing when predation is successful
+
+%---- NEW VARIABLES -----%
+predator_fear_range = 35;           %from how far prey can see predator.
+predator_delay_time = 200;          %delay for when predator will arrive.
 
 
 %DELETE
@@ -176,7 +190,7 @@ for t = 1:tot_time
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_evolve*cos(theta_boid/2)
+                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) < v_evolve*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
                         lesum = lesum + r(i,index_b(j));
@@ -194,7 +208,7 @@ for t = 1:tot_time
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) < v_evolve*cos(theta_boid/2)
                             vx_bo = -vx(index_vbo(k));
                             vy_bo = -vy(index_vbo(k));
                         end
@@ -212,7 +226,7 @@ for t = 1:tot_time
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
                         %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) > v_evolve*cos(theta_boid/2)
+                        if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) < v_evolve*cos(theta_boid/2)
                             vx_ba = vx_ba + rx_hat(i,index_vba(k));
                             vy_ba = vy_ba + ry_hat(i,index_vba(k));
                         end
@@ -229,7 +243,7 @@ for t = 1:tot_time
                 
                 
                 if(hoick_mode)
-                    if r(N_boid + N_hoick,i) < R_a + 50 % TEMPORARY value. Calculating v_p
+                    if r(N_boid + N_hoick,i) < R_a + predator_fear_range
                         %vx_p = -(x(N_boid + N_hoick)-x(i))/r_hoick(i);
                         %vy_p = -(y(N_boid + N_hoick)-y(i))/r_hoick(i);
                         vx_p = -rx_hat(i,N_boid + N_hoick);
@@ -306,7 +320,7 @@ for t = 1:tot_time
             end
             
             
-        elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
+        elseif hoick_mode && i > N_boid && t > warm_up+predator_delay_time %introduce hoick to the world after warm up is finished
             %-----------ITERATE OVER HOICKS------------%
             %FIND VELOCITY FOR HOICK
             vx(i,t+1) = rx_hat(i,hoick_index(1));
@@ -332,8 +346,8 @@ for t = 1:tot_time
     
     
     %----------Calculate polarisation----------%
-    vx_sum=sum(vx(1:N_boid,t));
-    vy_sum=sum(vy(1:N_boid,t));
+    vx_sum=sum(cos(newdirection(1:N_boid,t+1)));
+    vy_sum=sum(sin(newdirection(1:N_boid,t+1)));
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     if(t > warm_up)

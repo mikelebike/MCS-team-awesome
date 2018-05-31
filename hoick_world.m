@@ -84,20 +84,20 @@ else
     A_s_hoick=1000*R_r_hoick^2;
     A_m_hoick=25*R_r_hoick^2;
     
-    v_boid = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
+    v_boid = 2;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = 0.6*pi;%A_m_boid/(2*v_boid^2); %turning angle for boids
+    phi_boid  = A_m_boid/(2*v_boid^2); %turning angle for boids
     phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
-    theta_boid = 0.6*pi;%A_s_boid/(R_a_boid)^2;      %viewing angle
+    theta_boid = A_s_boid/(R_a_boid)^2;      %viewing angle
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
     omega_boid = 2;         %Boid sensitivity to predator
     omega_hoick=1;          %Hoick sensitivity to prey
-    omega_group=20;
+    omega_group=3000;
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 0;            %Warm up time
+    warm_up = 2000;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
     
@@ -120,6 +120,21 @@ if hoick_type_mode
 end
 %----------------------------%
 
+
+
+%-----_DELETE_---------%
+R_r_hoick = 4;               %Repulsion radius
+R_avoid   = 40;
+R_o_hoick = 50;               %Orientation radius
+R_a_hoick = 100;               %Attraction radius
+
+A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
+A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
+
+phi_hoick = pi/2;               %turning angle for hoicks
+theta_hoick = pi/2;           %viewing angle
+
+%-----------------------_%
     
 
 %------ NEW VARIABLES -------%
@@ -155,13 +170,12 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-
-x(:,1) = L*rand(N_boid + N_hoick,1);% L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
-x(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
+x(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
-y(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
+y(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
@@ -249,8 +263,8 @@ for t = 1:tot_time
                         %SEE IF WITHIN VIEWING ANGLE
                         if vx(i,t)*rx_hat(i,index_b(k)) + vy(i,t)*ry_hat(i,index_b(k)) < v_boid*cos(theta_boid/2)
 
-                            vx_bo = -vx(index_vbo(k));
-                            vy_bo = -vy(index_vbo(k));
+                            vx_bo = vx_bo-vx(index_vbo(k));
+                            vy_bo = vx_bo-vy(index_vbo(k));
                         end
                     end
                 end
@@ -403,7 +417,7 @@ for t = 1:tot_time
             inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_r_hoick);   %Find how many hoicks are inside repulsion radius
                
             %IF ANY HOICKS ARE TOO CLOSE AND NO PREY WITHIN REACH
-            if not(inside_R_r_hoick==0)
+            if (not(inside_R_r_hoick==0) )%&& prey_distance(1)>R_r_hoick)
                 vx_b = 0;
                 vy_b = 0;
                 v_b_sum = 0;        %Initializes v_b_sum here just to make if-loop for interaction with predator work
@@ -431,8 +445,8 @@ for t = 1:tot_time
                     for k = 1:length(index_vbo)
 %                         %SEE IF WITHIN VIEWING ANGLE
 %                         if vx(i,t)*rx_hat(i,index_vbo(k)+N_boid) + vy(i,t)*ry_hat(i,index_vbo(k)+N_boid) > v_hoick*cos(theta_hoick/2)
-                            vx_bo = -vx(index_vbo(k)+N_boid);
-                            vy_bo = -vy(index_vbo(k)+N_boid);
+                            vx_bo = vx_bo -vx(index_vbo(k)+N_boid);
+                            vy_bo = vx_bo -vy(index_vbo(k)+N_boid);
 %                         end
                     end
                 end
@@ -476,6 +490,9 @@ for t = 1:tot_time
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
             vx(i,t+1) = omega_group*vx_b + e_hoick*vx_noise + omega_hoick*vx_p;
             vy(i,t+1) = omega_group*vy_b + e_hoick*vy_noise + omega_hoick*vy_p;
+            
+            gruppx= omega_group*vx_b
+            gruppy= omega_group*vy_b
             
             
             %----------CORRECT FOR TURNING ANGLE-----------------%

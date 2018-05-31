@@ -14,13 +14,12 @@ L=400;                  %system size
 N_boid = 30;            %Nr of boids
 N_hoick = 1;            %Nr of hoicks
 dt = 0.1;               %CHECK Time-step, why is this used?
-R_r_boid = 1;                %repulsion radius
 
+R_r_boid = 1;                %repulsion radius
 R_o_boid = 10;                %Orientation radius
 R_a_boid = 13;               %attraction radius
 
 R_r_hoick = 1;                %repulsion radius
-
 R_o_hoick = 10;                %Orientation radius
 R_a_hoick = 13;               %attraction radius
 
@@ -46,6 +45,7 @@ theta_boid = 1000/(R_a_boid^2);
 phi_boid = 25/v_boid^2;
 
 e_boid = 0.2;          %sensitivity to noise
+e_hoick = 0.0001;
 warm_up =999;          %warm up 
 tot_time=1000;         %Totalt time
 
@@ -64,7 +64,7 @@ p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r_boid',R_r_boid,'R_o_boid',R_o_boid
     'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie,...
     'warm_up',warm_up,'N_hoick',N_hoick,'v_hoick',v_hoick,'omega_boid',omega_boid,...
     'R_r_hoick',R_r_hoick,'R_o_hoick',R_o_hoick,'R_a_hoick',R_a_hoick,...
-    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick);
+    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick,'e_hoick',e_hoick);
 
 %-----------------------------------------------------------------------%
 %--------------------------SIMULATIONS----------------------------------%

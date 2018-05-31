@@ -13,11 +13,14 @@
 %function [polarisation]=hoick_world(p)
 
 %-------- CONTROL VARIABLES----------%
-phase_mode = 1;
+phase_mode = 0;
 hoick_mode = 0;
-make_figure = 0;
+make_figure = 1;
 make_movie = 0;
 
+if(not(phase_mode))
+    make_figure= 1;
+end
 
 if phase_mode
     %TAKE INPUT PARAMETERS IF IN PHASE MODE
@@ -51,7 +54,7 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L = 400;                  %System size
-    N_boid = 80;            %Nr of boids
+    N_boid = 20;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
     R_r = 1;                %repulsion radius
@@ -70,8 +73,8 @@ else
     omega_boid = 10;         %Sensitivity to predator
     e_boid = 0.00001;       %Sensitivity to noise
     
-    warm_up = 300;            %Warm up time
-    tot_time = 1000 + warm_up;       %Totalt time
+    warm_up = 10000;            %Warm up time
+    tot_time = 7000 + warm_up;       %Totalt time
     
 end
 
@@ -104,11 +107,11 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  % TEMPORARY initial positions
+x(:,1) = L/2+L/4*rand(N_boid + N_hoick,1)-L/8;  % TEMPORARY initial positions
 x(N_boid + N_hoick, warm_up + 1) = L*rand();     %set random x-position for hoick once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = L/2+L/8*rand(N_boid + N_hoick,1)-L/16;  %TEMPORARY initial positions
+y(:,1) = L/2+L/4*rand(N_boid + N_hoick,1)-L/8;  %TEMPORARY initial positions
 y(N_boid + N_hoick, warm_up + 1) = L*rand();     %set random y-position for hoick once it's introduced to the world
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
@@ -179,7 +182,7 @@ for t = 1:tot_time
                 
                 for j=1:inside_R_r
                     %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) > v_evolve*cos(theta_boid/2)
+                    if vx(i,t)*rx_hat(i,index_b(j)) + vy(i,t)*ry_hat(i,index_b(j)) < v_evolve*cos(theta_boid/2)
                         vx_b = vx_b + rx_hat(i,index_b(j));
                         vy_b = vy_b + ry_hat(i,index_b(j));
                         lesum = lesum + r(i,index_b(j));
@@ -338,7 +341,7 @@ for t = 1:tot_time
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     if(t > warm_up)
-        polarisation(t)
+        polarisation(t);
     end
     
     %Making the video

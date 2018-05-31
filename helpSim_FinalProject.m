@@ -12,7 +12,7 @@ function [X_allTime,frequency_info]=helpSim_FinalProject(p,simulations,R_o_value
     count1=0;
     %Parameter changes
     for v1=R_o_values
-    count1= count1 +1;
+    count1= count1 +1
     p.R_o = v1;   
 
         count2=0;
@@ -21,7 +21,7 @@ function [X_allTime,frequency_info]=helpSim_FinalProject(p,simulations,R_o_value
             p.R_a =v2;
             
             %Limiation according to figure 1
-            p.theta_boid = 1000/(p.R_a^2);
+            p.theta_boid = p.A_s/p.R_a^2;
             
             %Many Simulations
             for s=1:simulations   

@@ -234,10 +234,6 @@ for t = 1:tot_time
                     vy_p = -ry_hat(i,N_boid + N_hoick);
                 end
                 
-                if r(N_boid + N_hoick,i) <= R_catch % TEMPORARY value. boid dies if hoick comes close
-                    x(i,[t:end]) = NaN;
-                    y(i,[t:end]) = NaN;
-                end
                 %end
             end
             
@@ -301,11 +297,22 @@ for t = 1:tot_time
         %-------------------HOICK---------------------%
         %---------------------------------------------%
         elseif hoick_mode && i > N_boid && t > warm_up %introduce hoick to the world after warm up is finished
-            %-----------ITERATE OVER HOICKS------------%
             
+            %-----------ITERATE OVER HOICKS------------%      
             if isnan(x(i,t)) %Skips this iteration if the value is NaN (dead Hoick)
                 continue
             end
+            
+            
+            
+            inside_R_catch = sum(r_boid(:,i) < R_r_boid); %find how many boids inside repulsion radius
+
+            
+            if r(i,:) <= R_catch % TEMPORARY value. Boid is killed if in R_catch
+                    x(i,[t:end]) = NaN;
+                    y(i,[t:end]) = NaN;
+            end
+            
             
             %FIND VELOCITY FOR HOICK
             vx(i,t+1) = rx_hat(i,hoick_index(1));
@@ -320,6 +327,8 @@ for t = 1:tot_time
             
             %---------SEE IF ANY BOIDS IN REPULSION AREA--------
             v_b_sum = 0; %initializes lesum here just to make if-loop for interaction with predator work
+            
+
             
             if not(inside_R_r==0)
                 

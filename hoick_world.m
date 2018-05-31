@@ -103,18 +103,6 @@ else
     
 end
 
-%------ NEW VARIABLES -------%
-R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
-R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
-predator_delay_time = 5;          %delay for when predator will arrive.
-
-
-%DELETE
-second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
-first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
-%--------------------------%
-
-
 %--------Setting type and type variables-----%
 %types: 1=group,2=independant individuals, 3=Rivals
 if hoick_type_mode
@@ -132,6 +120,19 @@ if hoick_type_mode
 end
 %----------------------------%
     
+
+%------ NEW VARIABLES -------%
+R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
+R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
+predator_delay_time = 5;          %delay for when predator will arrive.
+hoick_kills = zeros(N_hoick,1);   %Measures how many kills the hoicks make
+
+%DELETE
+second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
+first = 0;              %measures how often we enter the second loop, i.e. turn left <- see correction of angle code
+%--------------------------%
+
+
 
 
 %GRAPHICS STUFF
@@ -153,6 +154,7 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
+
 x(:,1) = L*rand(N_boid + N_hoick,1);% L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 x(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
@@ -160,12 +162,6 @@ y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates f
 y(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 y(N_boid+1:end, warm_up+1+predator_delay_time) = L/2 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
-
-% 
-% x(N_boid+1, warm_up+1+predator_delay_time) = 100;
-% x(N_boid+1, warm_up+1+predator_delay_time) = 400;
-% y(N_boid+1, warm_up+1+predator_delay_time) = 100;
-% y(N_boid+1, warm_up+1+predator_delay_time) = 400;
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
 vy = zeros(N_boid + N_hoick,tot_time+1);
@@ -178,8 +174,8 @@ ry_hat = zeros(N_boid + N_hoick,1);    %unit vector for y component
 
 prevdirection = zeros(N_boid + N_hoick, tot_time+1);
 newdirection = zeros(N_boid + N_hoick, tot_time+1);
-newdirection(:,1) = 0;%2*pi*rand(N_boid + N_hoick, 1);
-
+newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
+newdirection(N_boid+1:end,warm_up+1+predator_delay_time) = 2*pi*rand(N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
     
@@ -375,24 +371,29 @@ for t = 1:tot_time
            
             %----------------TEST IF HOICK CAN EAT THE CLOSEST BOID ------%
             [prey_distance, prey_index] = sort(r(i,1:N_boid));
-            if prey_distance(1) <= R_catch % Boid is killed if within in R_catch
-                x(prey_index(1),t:end) = NaN;
-                y(prey_index(1),t:end) = NaN;
-                [prey_distance, prey_index] = sort(r(i,1:N_boid));
-            end
             
-            %-----------------FIND VELOCITY VECTOR FOR CLOSEST BOID------------%
-            vx_p = rx_hat(i,prey_index(1));
-            vy_p = ry_hat(i,prey_index(1));
-            %Normalise to unit vectors
-            vxy_norm = (vx_p^2 + vy_p^2)^.5+0.000000001;
-            vx_p = vx_p/vxy_norm;
-            vy_p = vy_p/vxy_norm;
-            
-  
-            if(isnan(prey_distance(1)))
-                vx_p = 0;
-                vy_p = 0;
+            vx_p = 0;
+            vy_p = 0;
+            if not(isempty(prey_distance))
+                  
+              
+
+                if prey_distance(1) <= R_catch % Boid is killed if within in R_catch
+                    x(prey_index(1),t:end) = NaN;
+                    y(prey_index(1),t:end) = NaN;
+                    [prey_distance, prey_index] = sort(r(i,1:N_boid));
+                    hoick_kills(i-N_boid,1) = hoick_kills(i-N_boid,1) +1;
+
+                end
+
+                %-----------------FIND VELOCITY VECTOR FOR CLOSEST BOID------------%
+                vx_p = rx_hat(i,prey_index(1));
+                vy_p = ry_hat(i,prey_index(1));
+                %Normalise to unit vectors
+                vxy_norm = (vx_p^2 + vy_p^2)^.5+0.000000001;
+                vx_p = vx_p/vxy_norm;
+                vy_p = vy_p/vxy_norm;          
+
             end
             
             %-----------------FIND INTERACTION WITH OTHER HOICKS------------
@@ -462,9 +463,7 @@ for t = 1:tot_time
                 vx_b = (vx_ba + vx_bo)/v_b;
                 vy_b = (vy_ba + vy_bo)/v_b;                
                 
-            end 
-            
-            
+            end           
             
             
             %----------FIND NOISE----------------------------------%
@@ -506,10 +505,12 @@ for t = 1:tot_time
             %---------GRAPHICS--------%
             %-----------PLOT HOICK----------------------
             if make_figure
-                plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
-                axis([0 L 0 L]);
-                hold on
-                plot(x(i,t+1) ,y(i,t+1),'r.','markersize',24)
+                if ((x(i,t+1)-x(i,t))^2+(y(i,t+1)-y(i,t))^2<=2*v_hoick^2)
+                    plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
+                    axis([0 L 0 L]);
+                    hold on
+                    plot(x(i,t+1) ,y(i,t+1),'r.','markersize',24)
+                end
             end
         end
     end

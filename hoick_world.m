@@ -17,7 +17,7 @@ phase_mode = 0;
 hoick_mode = 1;
 hoick_type_mode=1;
 make_movie = 0;
-type=3;
+type=1;
 
 if(not(phase_mode))
     make_figure = 1;
@@ -91,8 +91,8 @@ else
     theta_boid = 0.6*pi;%A_s_boid/(R_a_boid)^2;      %viewing angle
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
     omega_boid = 2;         %Boid sensitivity to predator
-    omega_hoick=0.5;          %Hoick sensitivity to prey
-    omega_group=3;
+    omega_hoick=1;          %Hoick sensitivity to prey
+    omega_group=20;
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
@@ -108,7 +108,7 @@ end
 if hoick_type_mode
     type_variables = Hoick_types(type,v_hoick);
 
-    R_r_hoick = 120;%type_variables.R_r_hoick;               %Repulsion radius
+    R_r_hoick = type_variables.R_r_hoick;               %Repulsion radius
     R_o_hoick = type_variables.R_o_hoick;               %Orientation radius
     R_a_hoick = type_variables.R_a_hoick;               %Attraction radius
 
@@ -119,6 +119,7 @@ if hoick_type_mode
     theta_hoick = type_variables.theta_hoick;           %viewing angle
 end
 %----------------------------%
+
     
 
 %------ NEW VARIABLES -------%
@@ -375,9 +376,6 @@ for t = 1:tot_time
             vx_p = 0;
             vy_p = 0;
             if not(isempty(prey_distance))
-                  
-              
-
                 if prey_distance(1) <= R_catch % Boid is killed if within in R_catch
                     x(prey_index(1),t:end) = NaN;
                     y(prey_index(1),t:end) = NaN;
@@ -404,18 +402,19 @@ for t = 1:tot_time
             %---------CHECK IF ANY HOICKS ARE IN REPULSION AREA--------%
             inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_r_hoick);   %Find how many hoicks are inside repulsion radius
                
+            %IF ANY HOICKS ARE TOO CLOSE AND NO PREY WITHIN REACH
             if not(inside_R_r_hoick==0)
                 vx_b = 0;
                 vy_b = 0;
                 v_b_sum = 0;        %Initializes v_b_sum here just to make if-loop for interaction with predator work
                 
                 for j=1:inside_R_r_hoick
-                    %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
+%                     %SEE IF WITHIN VIEWING ANGLE
+%                     if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
                         vx_b = vx_b + rx_hat(i,index_b(j)+N_boid);
                         vy_b = vy_b + ry_hat(i,index_b(j)+N_boid);
                         v_b_sum = v_b_sum + r(i,index_b(j)+N_boid);
-                    end
+%                     end
                 end
                 vx_b = -vx_b/(v_b_sum+0.000001);
                 vy_b = -vy_b/(v_b_sum+0.000001);
@@ -430,11 +429,11 @@ for t = 1:tot_time
                 vy_bo = 0;
                 if not(isempty(index_vbo))
                     for k = 1:length(index_vbo)
-                        %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_vbo(k)+N_boid) + vy(i,t)*ry_hat(i,index_vbo(k)+N_boid) > v_hoick*cos(theta_hoick/2)
+%                         %SEE IF WITHIN VIEWING ANGLE
+%                         if vx(i,t)*rx_hat(i,index_vbo(k)+N_boid) + vy(i,t)*ry_hat(i,index_vbo(k)+N_boid) > v_hoick*cos(theta_hoick/2)
                             vx_bo = -vx(index_vbo(k)+N_boid);
                             vy_bo = -vy(index_vbo(k)+N_boid);
-                        end
+%                         end
                     end
                 end
                 
@@ -450,11 +449,11 @@ for t = 1:tot_time
                 if not(isempty(index_vba))
                     %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
                     for k = 1:length(index_vba)
-                        %SEE IF WITHIN VIEWING ANGLE
-                        if vx(i,t)*rx_hat(i,index_b(k)+N_boid) + vy(i,t)*ry_hat(i,index_b(k)+N_boid) > v_hoick*cos(theta_hoick/2)
+%                         %SEE IF WITHIN VIEWING ANGLE
+%                         if vx(i,t)*rx_hat(i,index_b(k)+N_boid) + vy(i,t)*ry_hat(i,index_b(k)+N_boid) > v_hoick*cos(theta_hoick/2)
                             vx_ba = vx_ba + rx_hat(i,index_vba(k)+N_boid);
                             vy_ba = vy_ba + ry_hat(i,index_vba(k)+N_boid);
-                        end
+%                         end
                     end
                 end
                 

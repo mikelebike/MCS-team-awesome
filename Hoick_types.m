@@ -17,7 +17,7 @@ elseif type==2
 %----RIVALS----%
 else %type==3
     
-    R_r_hoick = 60;               %Repulsion radius
+    R_r_hoick = 120;               %Repulsion radius
     R_o_hoick = 0;               %Orientation radius (minus orientation)
     R_a_hoick = 0;                %Attraction radius
 

@@ -11,14 +11,13 @@
 
 
 close all;
-clear all;
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
 hoick_mode = 1;
 hoick_type_mode=1;
 make_movie = 0;
-type=1;
+type=3;
 
 if(not(phase_mode))
     make_figure = 1;
@@ -93,11 +92,12 @@ else
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
     omega_boid = 2;         %Boid sensitivity to predator
     omega_hoick=0.5;          %Hoick sensitivity to prey
+    omega_group=3;
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 1000;            %Warm up time
+    warm_up = 0;            %Warm up time
     tot_time = 1000 + warm_up;       %Totalt time
     
     
@@ -108,7 +108,7 @@ end
 if hoick_type_mode
     type_variables = Hoick_types(type,v_hoick);
 
-    R_r_hoick = type_variables.R_r_hoick;               %Repulsion radius
+    R_r_hoick = 120;%type_variables.R_r_hoick;               %Repulsion radius
     R_o_hoick = type_variables.R_o_hoick;               %Orientation radius
     R_a_hoick = type_variables.R_a_hoick;               %Attraction radius
 
@@ -475,8 +475,8 @@ for t = 1:tot_time
             
             
             %----------ADD COMPONENTS FOR VELOCITY VECTOR----------%
-            vx(i,t+1) = vx_b + e_hoick*vx_noise + omega_hoick*vx_p;
-            vy(i,t+1) = vy_b + e_hoick*vy_noise + omega_hoick*vy_p;
+            vx(i,t+1) = omega_group*vx_b + e_hoick*vx_noise + omega_hoick*vx_p;
+            vy(i,t+1) = omega_group*vy_b + e_hoick*vy_noise + omega_hoick*vy_p;
             
             
             %----------CORRECT FOR TURNING ANGLE-----------------%

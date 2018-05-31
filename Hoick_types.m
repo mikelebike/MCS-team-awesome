@@ -3,8 +3,8 @@ function type_variables=Hoick_types(type,v_hoick)
 
 
 %----GROUP----%
-if type==1;    
-    R_r_hoick = 0;                %Repulsion radius
+if type==1   
+    R_r_hoick = 1;                %Repulsion radius
     R_o_hoick = 8;                %Orientation radius
     R_a_hoick = 15;               %Attraction radius
 

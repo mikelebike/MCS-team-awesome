@@ -9,21 +9,30 @@
 
 %function [polarisation]=hoick_world(p)
 
-
+N_hoick=2;
 close all;
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
 hoick_mode = 1;
 hoick_type_mode=1;
-make_movie = 1;
+make_movie = 0;
 type=1;
+make_figure=0;
 
-if(not(phase_mode))
-    make_figure = 1;
-else
-    make_figure = 0;
-end
+iterations=20;
+
+hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
+for iterate=1:iterations
+
+iterate
+
+
+% %if(not(phase_mode))
+%     %make_figure = 1;
+% %else
+%     make_figure = 0;
+% %5end
 
 if phase_mode
     %TAKE INPUT PARAMETERS IF IN PHASE MODE
@@ -66,12 +75,12 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 65;            %Nr of boids
-    N_hoick = 10;            %Nr of predators
+    N_boid = 300;            %Nr of boids
+  %  N_hoick = 2;            %Nr of predators
     
     R_r_boid = 1;                %repulsion radius
-    R_o_boid = 1;                %Orientation radius
-    R_a_boid = 13;               %Attraction radius
+    R_o_boid = 8;                %Orientation radius
+    R_a_boid = 14;               %Attraction radius
     
     
     R_r_hoick = 1;                %repulsion radius
@@ -79,28 +88,28 @@ else
     R_a_hoick = 14;               %Attraction radius
     
     
-    A_s_boid = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
-    A_m_boid = 25*R_r_boid^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
+    A_s_boid = 1000*1^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+    A_m_boid = 25*1^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
     A_s_hoick=1000*R_r_hoick^2;
     A_m_hoick=25*R_r_hoick^2;
     
     v_boid = 5;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = A_s_boid/(2*(R_a_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
-    phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
+    phi_boid  = A_m_boid/(4*1.7^2); %turning angle for boids
+   % phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
     theta_boid = A_s_boid/(2*(R_a_boid)^2);      %viewing angle
-    theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
+   % theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
     
-    omega_boid = 2;         %Boid sensitivity to predator
-    omega_hoick=2;          %Hoick sensitivity to prey
+    omega_boid = 8;         %Boid sensitivity to predator
+    omega_hoick=4;          %Hoick sensitivity to prey
     omega_group=1;
-    omega_independence=1;
+    omega_independence=3;
     
-    e_boid = 0.00001;       %Sensitivity to noise
+    e_boid = 0.3;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 3000;            %Warm up time
-    tot_time = 270 + warm_up;       %Totalt time
+    warm_up = 500;            %Warm up time
+    tot_time = 300 + warm_up;       %Totalt time
     
     
 end
@@ -121,7 +130,7 @@ if hoick_type_mode
     theta_hoick = type_variables.theta_hoick;           %viewing angle
     
     %NEWLY ADDED BY MIKE
-    omega_independence=type_variables.omega_independence;
+    %omega_independence=type_variables.omega_independence;
     R_avoid=type_variables.R_avoid;
 end
 %----------------------------%
@@ -136,17 +145,17 @@ end
 % A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
 % A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
 %
-phi_hoick = pi/2;               %turning angle for hoicks
-theta_hoick = pi/2;           %viewing angle
+phi_hoick = 0.8*phi_hoick;%pi/2;               %turning angle for hoicks
+theta_hoick = 0.8*phi_hoick;%0.5*theta_hoick;%3*pi/4;           %viewing angle
 %
 % %-----------------------_%
 
 
 %------ NEW VARIABLES -------%
-R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
-R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
-predator_delay_time = 1;          %delay for when predator will arrive.
-hoick_kills = zeros(N_hoick,1);   %Measures how many kills the hoicks make
+R_catch = 3;       %TEMPORARY value. Radius describing when predation is successful
+R_flee = 25;           %TEMPORARY Radius for boids fleeing hoicks
+predator_delay_time = 30;          %delay for when predator will arrive.
+%hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -162,7 +171,7 @@ if make_figure
     marker1 = 14;
     
     if make_movie
-        filename = 'Final Project.avi';
+        filename = 'Final Project.avi';%'+num2Str(N_hoick)+'_hoicks_with_'+num2Str(omega_independence)+'independence_vs'+num2Str(N_hoicks)+'.avi';
         video = VideoWriter(filename);
         video.FrameRate = 3;
         video.Quality = 100;
@@ -170,16 +179,18 @@ if make_figure
     end
 end
 
+
+
 %-------------------INITIALIZE BOIDS AND HOICKS-------------------------%
 % x(i,t) gives the x coordinate of the ith particle at time t where the %
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %L*rand(N_boid + N_hoick,1);%TEMPORARY initial positions
 x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;%L*rand(N_boid + N_hoick,1);%;  %TEMPORARY initial positions
 y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
@@ -198,7 +209,7 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 newdirection(N_boid+1:end,warm_up+1+predator_delay_time) = 2*pi*rand(N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
-    
+
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
@@ -379,15 +390,17 @@ for t = 1:tot_time
             
             %---------GRAPHICS--------%
             %---------PLOT BOIDS---------------------------
-            if make_figure && t>warm_up
+            if make_figure 
+                if t>warm_up
                 if ((x(i,t+1)-x(i,t))^2+(y(i,t+1)-y(i,t))^2<=2*v_boid^2)
                     plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
                     axis([0 L 0 L]);
                     hold on
-                    plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
+                    plot(x(i,t+1) ,y(i,t+1),'k.','markersize',8)
                     %title(['Timestep: ',num2str(t)])
                     %xlabel('X position')
                     %ylabel('Y position')
+                end
                 end
             end
             
@@ -424,7 +437,7 @@ for t = 1:tot_time
                     x(prey_index(1),t:end) = NaN;
                     y(prey_index(1),t:end) = NaN;
                     [prey_distance, prey_index] = sort(r(i,1:N_boid));
-                    hoick_kills(i-N_boid,1) = hoick_kills(i-N_boid,1) +1;
+                    hoick_kills(i-N_boid,iterate) = hoick_kills(i-N_boid,iterate) +1;
                 end
                 
                 %-----------------FIND VELOCITY VECTOR FOR CLOSEST BOID------------%
@@ -453,7 +466,7 @@ for t = 1:tot_time
                 
                 
                 %---------CHECK IF ANY HOICKS ARE IN REPULSION ZONE--------%
-                [hoick_distance, hoick_index] = sort(r(i,N_boid+1:end));
+                [hoick_distance, le_hoick_index] = sort(r(i,N_boid+1:end));
                 inside_R_r_hoick=sum(hoick_distance<R_r_hoick);%Find how many hoicks are inside repulsion radius
                     
                     
@@ -469,8 +482,8 @@ for t = 1:tot_time
                         
                         %SEE IF WITHIN VIEWING ANGLE
                         %if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
-                        vx_br = vx_br + rx_hat(i,hoick_index(j));
-                        vy_br = vy_br + ry_hat(i,hoick_index(j));
+                        vx_br = vx_br + rx_hat(i,N_boid+le_hoick_index(j));
+                        vy_br = vy_br + ry_hat(i,N_boid+le_hoick_index(j));
                         %end
                         j=j+1;
                     end
@@ -484,7 +497,7 @@ for t = 1:tot_time
                     
                     
                     %------------AVOIDANCE---------%
-                    [hoick_distance, hoick_index] = sort(r(i,N_boid+1:end));
+                    [hoick_distance, le_hoick_index] = sort(r(i,N_boid+1:end));
                     inside_R_r_hoick=sum(hoick_distance<R_avoid);%Find how many hoicks are inside avoidance radius
 
                     
@@ -495,30 +508,24 @@ for t = 1:tot_time
                     %hoick can see
                     %for j=1:inside_R_r_hoick
                     j=1;
-                    while(hoick_distance(j)<=R_r_hoick&&j<=N_hoick)
+                    hoick_view_index=[];
+                    while(hoick_distance(j)<=R_avoid&&j<=N_hoick)
                                 %SEE IF WITHIN VIEWING ANGLE
-                                if vx(i,t)*rx_hat(i,hoick_index(j)) + vy(i,t)*ry_hat(i,hoick_index(j)) > v_hoick*cos(theta_hoick)
+                                if vx(i,t)*rx_hat(i,N_boid+le_hoick_index(j)) + vy(i,t)*ry_hat(i,N_boid+le_hoick_index(j)) > v_hoick*cos(theta_hoick)
                                     inside_R_r_hoick_view=inside_R_r_hoick_view+1;
+                                    hoick_view_index=[hoick_view_index,N_boid+le_hoick_index(j)];
                                 end
+                                j=j+1;
                     end
-                
-                    %  [hoick_distance, hoick_index] = sort(r(i,N_boid+1:i-1));
-                   % [prey_distance, prey_index] = sort(r(i,1:N_boid));
                     
-                    if (not(inside_R_r_hoick_view==0))
-                        
-                        if(hoick_distance(1)>4*R_catch)             %If very close to prey it will try to catch instead
-                            for j=1:inside_R_r_hoick_view
-                                    vx_bav = vx_bav + rx_hat(i,hoick_index(j));
-                                    vy_bav = vy_bav + ry_hat(i,hoick_index(j));
-                            end
-                            vbav_sum = (vx_bav^2+vy_bav^2)^0.5+0.000001;
-                            vx_bav = -vx_bav/vbav_sum;
-                            vy_bav = -vy_bav/vbav_sum;
+                    if (not(inside_R_r_hoick_view==0)&&prey_distance(1) > 3*R_catch)
+                        for j = 1:inside_R_r_hoick_view
+                            vx_bav = vx_bav + rx_hat(i,hoick_view_index(j));
+                            vy_bav = vy_bav + ry_hat(i,hoick_view_index(j));
                         end
-                        
-                        
-                        
+                        vbav_sum = (vx_bav^2+vy_bav^2)^0.5+0.000001;
+                        vx_bav = -vx_bav/vbav_sum;
+                        vy_bav = -vy_bav/vbav_sum;
                     else
                         %------------ORIENTATION---------%
                         index_vbo = find(r_hoick(:,i-N_boid) >= R_r_hoick & r_hoick(:,i-N_boid) < R_o_hoick);               %Index for the hoicks in orientation radius
@@ -618,7 +625,7 @@ for t = 1:tot_time
                     plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                     axis([0 L 0 L]);
                     hold on
-                    plot(x(i,t+1) ,y(i,t+1),'r.','markersize',24)
+                    plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
                 end
             end
         end
@@ -637,7 +644,7 @@ for t = 1:tot_time
     
     %Making the video
     if make_figure && t > warm_up
-        pause(0.00001)
+        %pause(0.00001)
         hold off
         
         if make_movie
@@ -654,4 +661,15 @@ if make_movie
     close(video);  %Closes movie
 end
 
-%end
+kill_distribution = hoick_kills(:,iterate)'
+mean_kills = mean(kill_distribution)
+
+end
+
+
+average_kill_distribution = mean(hoick_kills)'
+all_mean_kills=mean(average_kill_distribution)
+
+leMedian=median(hoick_kills(:))
+leMin = min(hoick_kills(:))
+leMax = max(hoick_kills(:))

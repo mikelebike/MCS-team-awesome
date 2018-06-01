@@ -11,12 +11,13 @@
 
 
 lesHoicks = 1:1:12;
-lesXi = 0.05:0.025:0.325;
+lesXi = 0.05:0.05:1.2;
 
 all_mean_kills=zeros(length(lesXi),length(lesHoicks));
 leMedian=zeros(length(lesXi),length(lesHoicks));
 leMin = zeros(length(lesXi),length(lesHoicks));
 leMax = zeros(length(lesXi),length(lesHoicks));
+leTotal = zeros(length(lesXi),length(lesHoicks));
 
 idxh=0;
 idxxi=0;
@@ -27,16 +28,18 @@ for N_hoick =lesHoicks
     for xi = lesXi
         idxxi=idxxi+1;
         
+        
+
         [idxh, idxxi]
         %-------- CONTROL VARIABLES----------%
         phase_mode = 0;
         hoick_mode = 1;
         hoick_type_mode=1;
         make_movie = 0;
-        type=1;
+        type=2;
         make_figure=0;
         
-        iterations=1;
+        iterations=4;
         
         hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
         for iterate=1:iterations
@@ -118,7 +121,7 @@ for N_hoick =lesHoicks
                 omega_boid = 17;         %Boid sensitivity to predator
                 omega_hoick=4;          %Hoick sensitivity to prey
                 omega_group=1;
-                omega_independence=3;
+                omega_independence=0;
                 
                 e_boid = 0.3;       %Sensitivity to noise
                 e_hoick = 0.00001;
@@ -690,6 +693,7 @@ for N_hoick =lesHoicks
         leMedian(idxxi,idxh)=median(hoick_kills(:));
         leMin(idxxi,idxh) = min(hoick_kills(:));
         leMax(idxxi,idxh) = max(hoick_kills(:));
+        leTotal(idxxi,idxh) = sum(hoick_kills(:));
         
         
     end
@@ -701,6 +705,14 @@ imagesc(lesHoicks,lesXi,all_mean_kills)
 xlabel("Number of Hoicks")
 ylabel("Xi")
 title("Average kills per hoick")
+set(gca,'YDir','normal')
+
+
+figure
+imagesc(lesHoicks,lesXi,leTotal)
+xlabel("Number of Hoicks")
+ylabel("Xi")
+title("Total kills")
 set(gca,'YDir','normal')
 
 

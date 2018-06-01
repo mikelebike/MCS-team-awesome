@@ -15,16 +15,16 @@ elseif type==2
     R_r_hoick = 3;               %Repulsion radius
     R_o_hoick = 0;                %Orientation radius
     R_a_hoick = 0;                %Attraction radius
-    R_avoid = 1;
+    R_avoid = 0;
     omega_independence=0;
     
 %----RIVALS----%
 else %type==3
     
-    R_r_hoick = 3;               %Repulsion radius
+    R_r_hoick = 30;               %Repulsion radius
     R_o_hoick = 0;               %Orientation radius (minus orientation)
     R_a_hoick = 0;                %Attraction radius
-    R_avoid = 120;
+    R_avoid = 0;
     omega_independence=5;
 
 end

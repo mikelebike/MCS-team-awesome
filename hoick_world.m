@@ -9,7 +9,6 @@
 
 %function [polarisation]=hoick_world(p)
 
-
 close all;
 
 %-------- CONTROL VARIABLES----------%
@@ -18,6 +17,8 @@ hoick_mode = 1;
 hoick_type_mode=1;
 make_movie = 1;
 type=1;
+
+hoick_advantage =1.25;    %Predator advantage
 
 if(not(phase_mode))
     make_figure = 1;
@@ -79,17 +80,22 @@ else
     R_a_hoick = 14;               %Attraction radius
     
     
-    A_s_boid = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
-    A_m_boid = 25*R_r_boid^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
-    A_s_hoick=1000*R_r_hoick^2;
-    A_m_hoick=25*R_r_hoick^2;
+%     A_s_boid = 1000*R_r_boid^2;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+%     A_m_boid = 25*R_r_boid^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
+%     A_s_hoick=1000*R_r_hoick^2;
+%     A_m_hoick=25*R_r_hoick^2;
+%          
+    A_s_boid = 2*pi;        % TEMPORARY value (same value as used for fig 1). Possible sighting area
+    A_m_boid = 2*pi*(13)^2;          % TEMPORARY value (same value as used for fig 1). Possible movement area
+    A_s_hoick= 2*pi*(1*hoick_advantage)^2;                %Depends on how much better the predator is than the prey
+    A_m_hoick= 2*pi*(13*hoick_advantage)^2;
     
     v_boid = 5;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = 0.7*A_s_boid/(2*(R_a_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
-    phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
-    theta_boid = A_s_boid/(2*(R_a_boid)^2);      %viewing angle
-    theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
+    phi_boid  = A_s_boid/(2*(v_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
+    phi_hoick = A_m_hoick/(2*(v_hoick)^2);      %turning angle for hoicks
+    theta_boid = A_s_boid/((R_a_boid)^2);      %viewing angle
+    theta_hoick = A_s_hoick/((R_a_hoick))^2;          %viewing angle
     
     omega_boid = 5;         %Boid sensitivity to predator
     omega_hoick=10;          %Hoick sensitivity to prey

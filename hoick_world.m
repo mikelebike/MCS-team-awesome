@@ -66,12 +66,12 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 410;            %Nr of boids
-    N_hoick = 12;            %Nr of predators
+    N_boid = 910;            %Nr of boids
+    N_hoick = 1;            %Nr of predators
     
     R_r_boid = 5;                %repulsion radius
-    R_o_boid = 10;                %Orientation radius
-    R_a_boid = 14;               %Attraction radius
+    R_o_boid = 20;                %Orientation radius
+    R_a_boid = 28;               %Attraction radius
     
     
     R_r_hoick = 1;                %repulsion radius
@@ -99,8 +99,8 @@ else
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 0;            %Warm up time
-    tot_time = 270 + warm_up;       %Totalt time
+    warm_up = 100;            %Warm up time
+    tot_time = 300 + warm_up;       %Totalt time
     
     
 end
@@ -145,8 +145,8 @@ theta_hoick = pi/2;           %viewing angle
 %------ NEW VARIABLES -------%
 R_catch = 3;       %TEMPORARY value. Radius describing when predation is successful
 R_flee = 25;           %TEMPORARY Radius for boids fleeing hoicks
-predator_delay_time = 40;          %delay for when predator will arrive.
-hoick_kills = zeros(N_hoick,1);   %Measures how many kills the hoicks make
+predator_delay_time = 10;          %delay for when predator will arrive.
+hoick_kills = zeros(N_hoick,tot_time-warm_up);   %Measures how many kills the hoicks make
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -175,11 +175,11 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = 200 + L/8*rand(N_boid + N_hoick,1)-L/16;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = 200 + L/8*rand(N_boid + N_hoick,1)-L/16;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
@@ -198,7 +198,7 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 newdirection(N_boid+1:end,warm_up+1+predator_delay_time) = 2*pi*rand(N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
-    
+    t
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
@@ -424,7 +424,7 @@ for t = 1:tot_time
                     x(prey_index(1),t:end) = NaN;
                     y(prey_index(1),t:end) = NaN;
                     [prey_distance, prey_index] = sort(r(i,1:N_boid));
-                    hoick_kills(i-N_boid,1) = hoick_kills(i-N_boid,1) +1;
+                    hoick_kills(i-N_boid,t-warm_up) = hoick_kills(i-N_boid,t-warm_up) +1;
                 end
                 
                 %-----------------FIND VELOCITY VECTOR FOR CLOSEST BOID------------%

@@ -9,8 +9,15 @@
 
 %function [polarisation]=hoick_world(p)
 
-N_hoick=1
-close all;
+N_hoick=0;
+xi=0.15;
+
+
+
+for N_hoicks
+
+
+
 
 %-------- CONTROL VARIABLES----------%
 phase_mode = 0;
@@ -20,11 +27,11 @@ make_movie = 0;
 type=1;
 make_figure=0;
 
-iterations=40;
+iterations=10;
 
-hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
+hoick_kills = zeros(iterations,iterations);   %Measures how many kills the hoicks make
 for iterate=1:iterations
-
+N_hoick=N_hoick+1
 iterate;
 
 
@@ -145,7 +152,7 @@ end
 % A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
 % A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
 %
-phi_hoick = 0.1*phi_boid;%pi/2;               %turning angle for hoicks
+phi_hoick = xi*phi_boid;%pi/2;               %turning angle for hoicks
 theta_hoick =5*pi/2;%1.4*phi_hoick;%0.5*theta_hoick;%3*pi/4;           %viewing angle
 %
 % %-----------------------_%
@@ -667,9 +674,11 @@ mean_kills = mean(kill_distribution);
 end
 
 
-average_kill_distribution = mean(hoick_kills)'
-all_mean_kills=mean(average_kill_distribution)
+average_kill_distribution = mean(hoick_kills)';
 
-leMedian=median(hoick_kills(:))
-leMin = min(hoick_kills(:))
-leMax = max(hoick_kills(:))
+
+
+all_mean_kills=mean(average_kill_distribution)
+leMedian=median(hoick_kills(:));
+leMin = min(hoick_kills(:));
+leMax = max(hoick_kills(:));

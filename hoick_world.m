@@ -7,15 +7,15 @@
 % DELETE
 % OPTIMIZE
 
-%function [polarisation]=hoick_world(p)
+function [polarisation]=hoick_world(p)
 
 close all;
 
 %-------- CONTROL VARIABLES----------%
-phase_mode = 0;
-hoick_mode = 1;
+phase_mode = 1;
+hoick_mode = 0;
 hoick_type_mode=1;
-make_movie = 1;
+make_movie = 0;
 type=1;
 
 hoick_advantage =1.25;    %Predator advantage
@@ -67,12 +67,12 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 910;            %Nr of boids
+    N_boid = 80;            %Nr of boids
     N_hoick = 1;            %Nr of predators
     
-    R_r_boid = 5;                %repulsion radius
-    R_o_boid = 20;                %Orientation radius
-    R_a_boid = 28;               %Attraction radius
+    R_r_boid = 1;                %Repulsion radius
+    R_o_boid = 10;               %Orientation radius
+    R_a_boid = 13;               %Attraction radius
     
     
     R_r_hoick = 1;                %repulsion radius
@@ -90,7 +90,8 @@ else
     A_s_hoick= 2*pi*(1*hoick_advantage)^2;                %Depends on how much better the predator is than the prey
     A_m_hoick= 2*pi*(13*hoick_advantage)^2;
     
-    v_boid = 5;           % CHECK(no evolution for boids) the evolvable speed of boid
+    v_boid = 2.5;           % CHECK(no evolution for boids) the evolvable speed of boid
+    
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
     phi_boid  = A_s_boid/(2*(v_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
     phi_hoick = A_m_hoick/(2*(v_hoick)^2);      %turning angle for hoicks
@@ -98,14 +99,15 @@ else
     theta_hoick = A_s_hoick/((R_a_hoick))^2;          %viewing angle
     
     omega_boid = 5;         %Boid sensitivity to predator
+    
     omega_hoick=10;          %Hoick sensitivity to prey
     omega_group=1;
     omega_independence=12;
     
-    e_boid = 0.00001;       %Sensitivity to noise
+    e_boid = 0.2;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 100;            %Warm up time
+    warm_up = 3000;            %Warm up time
     tot_time = 300 + warm_up;       %Totalt time
     
     
@@ -181,11 +183,11 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(:,1) = L/2+L/6*rand(N_boid + N_hoick,1)-L/12; %L*rand(N_boid + N_hoick,1); %TEMPORARY initial positions
 x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = L*rand(N_boid + N_hoick,1);%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(:,1) = L/2+L/6*rand(N_boid + N_hoick,1)-L/12; %L*rand(N_boid + N_hoick,1);   %TEMPORARY initial positions
 y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
@@ -204,7 +206,7 @@ newdirection(:,1) = 2*pi*rand(N_boid + N_hoick, 1);
 newdirection(N_boid+1:end,warm_up+1+predator_delay_time) = 2*pi*rand(N_hoick, 1);
 %ITERATE OVER TIME
 for t = 1:tot_time
-    t
+    
     rx_temp = repmat(x(:,t)',numel(x(:,t)),1); %create matrix of all individuals positions in x
     ry_temp = repmat(y(:,t)',numel(y(:,t)),1); %create matrix of all individuals positions in y
     
@@ -643,15 +645,15 @@ for t = 1:tot_time
         if make_movie
             F(j) = getframe(gcf);  %Gets the current frame
             writeVideo(video,F(j)); %Puts the frame into the videomovie
+            pause(0.0000001)
+            hold off
         end
-    end
-    
-    pause(0.0000001)
-    hold off
+    end 
+
 end
 
 if make_movie
     close(video);  %Closes movie
 end
 
-%end
+end

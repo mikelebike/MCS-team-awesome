@@ -51,9 +51,9 @@ tot_time=1000;         %Totalt time
 
 
 %-----SIMULATION PARAMETERS----%
-one_sim=1;
+one_sim=0;
 multi_sim=0;
-phase=0;
+phase=1;
 
 make_figure=0;
 make_movie=0;
@@ -64,7 +64,7 @@ p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r_boid',R_r_boid,'R_o_boid',R_o_boid
     'tot_time',tot_time,'make_figure',make_figure,'make_movie',make_movie,...
     'warm_up',warm_up,'N_hoick',N_hoick,'v_hoick',v_hoick,'omega_boid',omega_boid,...
     'R_r_hoick',R_r_hoick,'R_o_hoick',R_o_hoick,'R_a_hoick',R_a_hoick,...
-    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick,'e_hoick',e_hoick);
+    'A_s_hoick',A_s_hoick,'A_m_hoick',A_m_hoick,'e_hoick',e_hoick,'omega_hoick',omega_hoick);
 
 %-----------------------------------------------------------------------%
 %--------------------------SIMULATIONS----------------------------------%
@@ -72,7 +72,7 @@ p = struct('L',L,'N_boid',N_boid,'dt',dt,'R_r_boid',R_r_boid,'R_o_boid',R_o_boid
 %-------------------SINGLE SIMULATION WITH PLOT-------------------------%
 
 if one_sim
-    p.make_figure=1;
+    p.make_figure=0;
     p.make_movie=0;
     
     p.R_o =8;
@@ -81,7 +81,7 @@ if one_sim
     p.theta_boid = 1000/(R_a_boid^2);
     p.phi_boid = 25/v_boid^2;
     
-    polarisation = boid_world(p);
+    polarisation = hoick_world(p);
     
     time_vec = 1:tot_time;
     plot(time_vec,polarisation);
@@ -137,13 +137,14 @@ if phase
     p.make_figure=0;
     p.make_movie=0;
     
-    simulations=3;
+    simulations=1;
     R_o_values =1:1:30;
     R_a_values=13:1:30;
     
-    p.phi_boid = 25/v_boid^2;
-    p.theta_boid = 1000/(R_a_boid^2);
-    p.phi_boid = 25/v_boid^2;
+    A_s_boid = 2*pi;        
+    A_m_boid = 2*pi*(13)^2;
+    p.phi_boid  = p.A_s_boid/(2*(v_boid)^2);
+    p.theta_boid = p.A_s_boid/((R_a_boid)^2);      
     
     %Kom ihåg att ändra på N_hoicks
     N_hoick =0; 

@@ -10,8 +10,8 @@
 %function [polarisation]=hoick_world(p)
 
 
-lesHoicks = 1:1:12;
-lesXi = 0.05:0.05:1.2;
+lesHoicks = 1:1:9;
+lesXi = 0.05:0.25:6;
 
 all_mean_kills=zeros(length(lesXi),length(lesHoicks));
 leMedian=zeros(length(lesXi),length(lesHoicks));
@@ -36,10 +36,10 @@ for N_hoick =lesHoicks
         hoick_mode = 1;
         hoick_type_mode=1;
         make_movie = 0;
-        type=2;
+        type=1;
         make_figure=0;
         
-        iterations=4;
+        iterations=13;
         
         hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
         for iterate=1:iterations
@@ -121,7 +121,7 @@ for N_hoick =lesHoicks
                 omega_boid = 17;         %Boid sensitivity to predator
                 omega_hoick=4;          %Hoick sensitivity to prey
                 omega_group=1;
-                omega_independence=0;
+                omega_independence=3;
                 
                 e_boid = 0.3;       %Sensitivity to noise
                 e_hoick = 0.00001;

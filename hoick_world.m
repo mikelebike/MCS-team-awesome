@@ -9,7 +9,7 @@
 
 %function [polarisation]=hoick_world(p)
 
-N_hoick=6;
+N_hoick=7
 close all;
 
 %-------- CONTROL VARIABLES----------%
@@ -18,14 +18,14 @@ hoick_mode = 1;
 hoick_type_mode=1;
 make_movie = 0;
 type=1;
-make_figure=1;
+make_figure=0;
 
-iterations=3;
+iterations=40;
 
 hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
 for iterate=1:iterations
 
-iterate
+iterate;
 
 
 % %if(not(phase_mode))
@@ -102,7 +102,7 @@ else
     
     omega_boid = 17;         %Boid sensitivity to predator
     omega_hoick=4;          %Hoick sensitivity to prey
-    omega_group=5;
+    omega_group=1;
     omega_independence=3;
     
     e_boid = 0.3;       %Sensitivity to noise
@@ -145,8 +145,8 @@ end
 % A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
 % A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
 %
-phi_hoick = 0.4*phi_boid;%pi/2;               %turning angle for hoicks
-theta_hoick =1.4*phi_hoick;%0.5*theta_hoick;%3*pi/4;           %viewing angle
+phi_hoick = 0.2*phi_boid;%pi/2;               %turning angle for hoicks
+theta_hoick =5*pi/2;%1.4*phi_hoick;%0.5*theta_hoick;%3*pi/4;           %viewing angle
 %
 % %-----------------------_%
 
@@ -154,7 +154,7 @@ theta_hoick =1.4*phi_hoick;%0.5*theta_hoick;%3*pi/4;           %viewing angle
 %------ NEW VARIABLES -------%
 R_catch = 3;       %TEMPORARY value. Radius describing when predation is successful
 R_flee = 45;           %TEMPORARY Radius for boids fleeing hoicks
-predator_delay_time = 30;          %delay for when predator will arrive.
+predator_delay_time = 5;          %delay for when predator will arrive.
 %hoick_kills = zeros(N_hoick,iterations);   %Measures how many kills the hoicks make
 
 %DELETE
@@ -187,11 +187,11 @@ end
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
 x(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %L*rand(N_boid + N_hoick,1);%TEMPORARY initial positions
-x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
+x(N_boid+1:end, warm_up+1+predator_delay_time) = 50 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
 y(:,1) = L/2+L/16*rand(N_boid + N_hoick,1)-L/32;%L*rand(N_boid + N_hoick,1);%;  %TEMPORARY initial positions
-y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
+y(N_boid+1:end, warm_up+1+predator_delay_time) = 50 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
 v = zeros(N_boid + N_hoick,tot_time+1);   %velocity vector for all individuals
@@ -661,8 +661,8 @@ if make_movie
     close(video);  %Closes movie
 end
 
-kill_distribution = hoick_kills(:,iterate)'
-mean_kills = mean(kill_distribution)
+kill_distribution = hoick_kills(:,iterate)';
+mean_kills = mean(kill_distribution);
 
 end
 

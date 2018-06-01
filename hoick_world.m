@@ -16,7 +16,7 @@ close all;
 phase_mode = 0;
 hoick_mode = 1;
 hoick_type_mode=1;
-make_movie = 0;
+make_movie = 1;
 type=1;
 
 if(not(phase_mode))
@@ -66,12 +66,12 @@ else
     
     %INITIALIZE PARAMETERS IF NOT IN PHASE MODE
     L=400;                  %System size
-    N_boid = 65;            %Nr of boids
-    N_hoick = 10;            %Nr of predators
+    N_boid = 410;            %Nr of boids
+    N_hoick = 12;            %Nr of predators
     
-    R_r_boid = 1;                %repulsion radius
-    R_o_boid = 1;                %Orientation radius
-    R_a_boid = 13;               %Attraction radius
+    R_r_boid = 5;                %repulsion radius
+    R_o_boid = 10;                %Orientation radius
+    R_a_boid = 14;               %Attraction radius
     
     
     R_r_hoick = 1;                %repulsion radius
@@ -86,20 +86,20 @@ else
     
     v_boid = 5;           % CHECK(no evolution for boids) the evolvable speed of boid
     v_hoick = v_boid*1.25;            % TEMPORARY value. Speed of hoick
-    phi_boid  = A_s_boid/(2*(R_a_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
+    phi_boid  = 0.7*A_s_boid/(2*(R_a_boid)^2);%pi;%A_m_boid/(4*v_boid^2); %turning angle for boids
     phi_hoick = A_m_hoick/(2*v_hoick^2);      %turning angle for hoicks
     theta_boid = A_s_boid/(2*(R_a_boid)^2);      %viewing angle
     theta_hoick = A_s_hoick/(R_a_hoick)^2;          %viewing angle
     
-    omega_boid = 2;         %Boid sensitivity to predator
-    omega_hoick=1;          %Hoick sensitivity to prey
+    omega_boid = 5;         %Boid sensitivity to predator
+    omega_hoick=10;          %Hoick sensitivity to prey
     omega_group=1;
-    omega_independence=1;
+    omega_independence=12;
     
     e_boid = 0.00001;       %Sensitivity to noise
     e_hoick = 0.00001;
     
-    warm_up = 800;            %Warm up time
+    warm_up = 0;            %Warm up time
     tot_time = 270 + warm_up;       %Totalt time
     
     
@@ -121,7 +121,7 @@ if hoick_type_mode
     theta_hoick = type_variables.theta_hoick;           %viewing angle
     
     %NEWLY ADDED BY MIKE
-    omega_independence=type_variables.omega_independence;
+    %omega_independence=type_variables.omega_independence;
     R_avoid=type_variables.R_avoid;
 end
 %----------------------------%
@@ -132,22 +132,21 @@ end
 % R_r_hoick = 5;               %Repulsion radius
 % R_o_hoick = 40;               %Orientation radius
 % R_a_hoick = 100;               %Attraction radius
-% 
+%
 % A_s_hoick = type_variables.A_s_hoick;               % TEMPORARY value (same value as used for fig 1). Possible sighting area
 % A_m_hoick = type_variables.A_m_hoick;               % TEMPORARY value (same value as used for fig 1). Possible movement area
-% 
-% phi_hoick = pi/2;               %turning angle for hoicks
-% theta_hoick = pi/2;           %viewing angle
-% 
+%
+phi_hoick = pi/2;               %turning angle for hoicks
+theta_hoick = pi/2;           %viewing angle
+%
 % %-----------------------_%
 
 
 %------ NEW VARIABLES -------%
-R_catch = R_r_boid +1;       %TEMPORARY value. Radius describing when predation is successful
-R_flee = 35;           %TEMPORARY Radius for boids fleeing hoicks
-predator_delay_time = 1;          %delay for when predator will arrive.
+R_catch = 3;       %TEMPORARY value. Radius describing when predation is successful
+R_flee = 25;           %TEMPORARY Radius for boids fleeing hoicks
+predator_delay_time = 40;          %delay for when predator will arrive.
 hoick_kills = zeros(N_hoick,1);   %Measures how many kills the hoicks make
-R_avoid   = 30;
 
 %DELETE
 second = 0;             %measures how often we enter the second loop, i.e. turn right <- see correction of angle code
@@ -176,11 +175,11 @@ end
 % last element is the hoick and the first N_boid elements are boids     %
 %-----------------------------------------------------------------------%
 x = zeros(N_boid + N_hoick,tot_time+1);          %define initial x coordiantes for boids
-x(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+x(:,1) = 200 + L/8*rand(N_boid + N_hoick,1)-L/16;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 x(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random x-position for hoicks once it's introduced to the world
 
 y = zeros(N_boid + N_hoick,tot_time+1);          %define initial y coordinates for boids
-y(:,1) = 200 + L/4*rand(N_boid + N_hoick,1)-L/8;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
+y(:,1) = 200 + L/8*rand(N_boid + N_hoick,1)-L/16;%L/2+L/16*rand(N_boid + N_hoick,1)-L/32;  %TEMPORARY initial positions
 y(N_boid+1:end, warm_up+1+predator_delay_time) = L/4 + L/8*rand(N_hoick,1)-L/16;     %set random y-position for hoicks once it's introduced to the world
 
 
@@ -385,7 +384,7 @@ for t = 1:tot_time
                     plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'k-','markersize',5) %plots the first half of the particles in black
                     axis([0 L 0 L]);
                     hold on
-                    plot(x(i,t+1) ,y(i,t+1),'k.','markersize',14)
+                    plot(x(i,t+1) ,y(i,t+1),'k.','markersize',8)
                     %title(['Timestep: ',num2str(t)])
                     %xlabel('X position')
                     %ylabel('Y position')
@@ -450,95 +449,118 @@ for t = 1:tot_time
             vy_bav = 0;
             index_b = hoick_index(i-N_boid,:); %Get indicies sorted by size from hoick to other hoicks
             
-            
-            %---------CHECK IF ANY HOICKS ARE IN REPULSION AREA--------%
-            inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_r_hoick);   %Find how many hoicks are inside repulsion radius
-            
-            %IF ANY HOICKS ARE TOO CLOSE AND NO PREY WITHIN REACH
-            if (not(inside_R_r_hoick==0) )%&& prey_distance(1)>R_r_hoick)
-                              
-                for j=1:inside_R_r_hoick
-                    %                     %SEE IF WITHIN VIEWING ANGLE
-                    %                     if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
-                    vx_br = vx_br + rx_hat(i,index_b(j)+N_boid);
-                    vy_br = vy_br + ry_hat(i,index_b(j)+N_boid);
-                 %   vbr_sum = vbr_sum + r(i,index_b(j)+N_boid);
-                    %                     end
-                end
-                vbr_sum = (vx_br^2+vy_br^2)^0.5+0.000001;
-                vx_br = -vx_br/vbr_sum;
-                vy_br = -vy_br/vbr_sum;
+            if(N_hoick>1)
                 
-            
-            else
-            %------ ELSE CHECK HOICKS IN ORIENTATION AND ATTRACTION ZONE %-----
-            
-            
-            
-            inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_avoid);   %Find how many hoicks are inside repulsion radius
-            
-            %------------AVOIDANCE---------%
-            if (not(inside_R_r_hoick==0) && prey_distance(1)>2*R_r_hoick)
-                              
-                for j=1:inside_R_r_hoick
-                    %                     %SEE IF WITHIN VIEWING ANGLE
-                    %                     if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
-                    vx_bav = vx_bav + rx_hat(i,index_b(j)+N_boid);
-                    vy_bav = vy_bav + ry_hat(i,index_b(j)+N_boid);
-                 %   vbr_sum = vbr_sum + r(i,index_b(j)+N_boid);
-                    %                     end
-                end
-                vbav_sum = (vx_bav^2+vy_bav^2)^0.5+0.000001;
-                vx_bav = -vx_bav/vbav_sum;
-                vy_bav = -vy_bav/vbav_sum;
-            end
-            
-            
-            
-            %------------ORIENTATION---------%
-            index_vbo = find(r_hoick(:,i-N_boid) >= R_r_hoick & r_hoick(:,i-N_boid) < R_o_hoick);               %Index for the hoicks in orientation radius
-            vx_bo = 0;
-            vy_bo = 0;
-            if not(isempty(index_vbo))
-                for k = 1:length(index_vbo)
-                    %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_vbo(k)+N_boid) + vy(i,t)*ry_hat(i,index_vbo(k)+N_boid) > v_hoick*cos(theta_hoick/2)
-                    vx_bo = vx_bo -vx(index_vbo(k)+N_boid);
-                    vy_bo = vx_bo -vy(index_vbo(k)+N_boid);
+                
+                %---------CHECK IF ANY HOICKS ARE IN REPULSION ZONE--------%
+                [hoick_distance, le_hoick_index] = sort(r(i,N_boid+1:end));
+                inside_R_r_hoick=sum(hoick_distance<R_r_hoick);%Find how many hoicks are inside repulsion radius
+                    
+                    
+                    
+                %inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_r_hoick);   %Find how many hoicks are inside repulsion radius
+                
+                %IF ANY HOICKS ARE TOO CLOSE
+                if (not(inside_R_r_hoick==0))
+                    
+                    %for j=1:inside_R_r_hoick
+                    j=1;
+                    while(hoick_distance(j)<=R_r_hoick&&j<=N_hoick)
+                        
+                        %SEE IF WITHIN VIEWING ANGLE
+                        %if vx(i,t)*rx_hat(i,index_b(j)+N_boid) + vy(i,t)*ry_hat(i,index_b(j)+N_boid) > v_hoick*cos(theta_hoick/2)
+                        vx_br = vx_br + rx_hat(i,N_boid+le_hoick_index(j));
+                        vy_br = vy_br + ry_hat(i,N_boid+le_hoick_index(j));
+                        %end
+                        j=j+1;
                     end
-                end
-            end
-            
-            vbo_norm = (vx_bo^2+vy_bo^2)^0.5+0.0000000001;
-            vx_bo=vx_bo/vbo_norm;
-            vy_bo=vy_bo/vbo_norm;
-            
-            %--------------ATTRACTION------------------%
-            index_vba = find(r_hoick(i-N_boid,:) >= R_o_hoick & r_hoick(i-N_boid,:) < R_a_hoick);
-            vx_ba = 0;
-            vy_ba = 0;
-            
-            %CHECK IF THERE ARE ANY HOICKS IN ATTRACTION AREA
-            
-            if not(isempty(index_vba))
-                %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
-                for k = 1:length(index_vba)
-                    %SEE IF WITHIN VIEWING ANGLE
-                    if vx(i,t)*rx_hat(i,index_b(k)+N_boid) + vy(i,t)*ry_hat(i,index_b(k)+N_boid) > v_hoick*cos(theta_hoick/2)
-                        vx_ba = vx_ba + rx_hat(i,index_vba(k)+N_boid);
-                        vy_ba = vy_ba + ry_hat(i,index_vba(k)+N_boid);
+                    vbr_sum = (vx_br^2+vy_br^2)^0.5+0.000001;
+                    vx_br = -vx_br/vbr_sum;
+                    vy_br = -vy_br/vbr_sum;
+                    
+                    
+                else
+                    %------ ELSE CHECK HOICKS IN AVOIDANCE, ORIENTATION AND ATTRACTION ZONE %-----
+                    
+                    
+                    %------------AVOIDANCE---------%
+                    [hoick_distance, le_hoick_index] = sort(r(i,N_boid+1:end));
+                    inside_R_r_hoick=sum(hoick_distance<R_avoid);%Find how many hoicks are inside avoidance radius
+
+                    
+                    %inside_R_r_hoick = sum(r_hoick(:,i-N_boid) < R_avoid);                      
+                    inside_R_r_hoick_view=0;
+                    
+                    %Find how many hoicks inside avoidance radius current
+                    %hoick can see
+                    %for j=1:inside_R_r_hoick
+                    j=1;
+                    hoick_view_index=[];
+                    while(hoick_distance(j)<=R_avoid&&j<=N_hoick)
+                                %SEE IF WITHIN VIEWING ANGLE
+                                if vx(i,t)*rx_hat(i,N_boid+le_hoick_index(j)) + vy(i,t)*ry_hat(i,N_boid+le_hoick_index(j)) > v_hoick*cos(theta_hoick)
+                                    inside_R_r_hoick_view=inside_R_r_hoick_view+1;
+                                    hoick_view_index=[hoick_view_index,N_boid+le_hoick_index(j)];
+                                end
+                                j=j+1;
                     end
+                    
+                    if (not(inside_R_r_hoick_view==0)&&prey_distance(1) > 3*R_catch)
+                        for j = 1:inside_R_r_hoick_view
+                            vx_bav = vx_bav + rx_hat(i,hoick_view_index(j));
+                            vy_bav = vy_bav + ry_hat(i,hoick_view_index(j));
+                        end
+                        vbav_sum = (vx_bav^2+vy_bav^2)^0.5+0.000001;
+                        vx_bav = -vx_bav/vbav_sum;
+                        vy_bav = -vy_bav/vbav_sum;
+                    else
+                        %------------ORIENTATION---------%
+                        index_vbo = find(r_hoick(:,i-N_boid) >= R_r_hoick & r_hoick(:,i-N_boid) < R_o_hoick);               %Index for the hoicks in orientation radius
+                        vx_bo = 0;
+                        vy_bo = 0;
+                        if not(isempty(index_vbo))
+                            for k = 1:length(index_vbo)
+                                %SEE IF WITHIN VIEWING ANGLE
+                                if vx(i,t)*rx_hat(i,index_vbo(k)+N_boid) + vy(i,t)*ry_hat(i,index_vbo(k)+N_boid) > v_hoick*cos(theta_hoick/2)
+                                    vx_bo = vx_bo -vx(index_vbo(k)+N_boid);
+                                    vy_bo = vx_bo -vy(index_vbo(k)+N_boid);
+                                end
+                            end
+                        end
+                        
+                        vbo_norm = (vx_bo^2+vy_bo^2)^0.5+0.0000000001;
+                        vx_bo=vx_bo/vbo_norm;
+                        vy_bo=vy_bo/vbo_norm;
+                        
+                        %--------------ATTRACTION------------------%
+                        index_vba = find(r_hoick(i-N_boid,:) >= R_o_hoick & r_hoick(i-N_boid,:) < R_a_hoick);
+                        vx_ba = 0;
+                        vy_ba = 0;
+                        
+                        %CHECK IF THERE ARE ANY HOICKS IN ATTRACTION AREA
+                        
+                        if not(isempty(index_vba))
+                            %ITERATE OVER ALL BOIDS IN ATTRACTION AREA
+                            for k = 1:length(index_vba)
+                                %SEE IF WITHIN VIEWING ANGLE
+                                if vx(i,t)*rx_hat(i,index_b(k)+N_boid) + vy(i,t)*ry_hat(i,index_b(k)+N_boid) > v_hoick*cos(theta_hoick/2)
+                                    vx_ba = vx_ba + rx_hat(i,index_vba(k)+N_boid);
+                                    vy_ba = vy_ba + ry_hat(i,index_vba(k)+N_boid);
+                                end
+                            end
+                            
+                            vba_norm = (vx_ba^2+vy_ba^2)^0.5+0.0000000001;
+                            vx_ba=vx_ba/vba_norm;
+                            vy_ba=vy_ba/vba_norm;
+                        end
+                    end
+                    
                 end
                 
-                vba_norm = (vx_ba^2+vy_ba^2)^0.5+0.0000000001;
-                vx_ba=vx_ba/vba_norm;
-                vy_ba=vy_ba/vba_norm;
-            end
-            
-            %----DEFINE VELOCITY UNIT VECTOR v_b----
-            v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
-            vx_b = (vx_ba + vx_bo)/v_b;
-            vy_b = (vy_ba + vy_bo)/v_b;
+                %----DEFINE VELOCITY UNIT VECTOR v_b----
+                v_b = ((vx_ba + vx_bo).^2 + (vy_ba + vy_bo).^2).^0.5+0.00000000001;
+                vx_b = (vx_ba + vx_bo)/v_b;
+                vy_b = (vy_ba + vy_bo)/v_b;
             end
             
             
@@ -554,8 +576,10 @@ for t = 1:tot_time
             vx(i,t+1) = omega_group*(vx_b + vx_br) + omega_independence*vx_bav + e_hoick*vx_noise + omega_hoick*vx_p;
             vy(i,t+1) = omega_group*(vy_b + vy_br) + omega_independence*vy_bav + e_hoick*vy_noise + omega_hoick*vy_p;
             
-            gruppx= omega_group*vx_b
-            gruppy= omega_group*vy_b
+            
+            %DELETE
+            gruppx= omega_group*(vx_b + vx_br);
+            gruppy= omega_group*(vy_b + vy_br);
             
             
             %----------CORRECT FOR TURNING ANGLE-----------------%
@@ -588,7 +612,7 @@ for t = 1:tot_time
                     plot([x(i,t), x(i,t+1)] ,[y(i,t),y(i,t+1)],'r-','markersize',5) %plots the first half of the particles in black
                     axis([0 L 0 L]);
                     hold on
-                    plot(x(i,t+1) ,y(i,t+1),'r.','markersize',24)
+                    plot(x(i,t+1) ,y(i,t+1),'r.','markersize',14)
                 end
             end
         end
@@ -602,12 +626,12 @@ for t = 1:tot_time
     
     polarisation(t) = (1/N_boid).*sqrt(vx_sum.^2 + vy_sum.^2);      %Polarisation
     if(t > warm_up)
-        polarisation(t)
+        polarisation(t);
     end
     
     %Making the video
     if make_figure && t > warm_up
-        pause(0.00001)
+        %pause(0.00001)
         hold off
         
         if make_movie

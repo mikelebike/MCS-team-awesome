@@ -4,11 +4,11 @@ function type_variables=Hoick_types(type,v_hoick)
 
 %----GROUP----%
 if type==1  
-    R_r_hoick = 1;                %Repulsion radius
+    R_r_hoick = 3;                %Repulsion radius
     R_o_hoick = 40;                %Orientation radius
     R_a_hoick = 100;               %Attraction radius
-    R_avoid = 20;
-    omega_independence=0.4;
+    R_avoid = 10;
+    omega_independence=5;
 
 %----SEVERAL INDEPENDANT INDIVIDUALS----%
 elseif type==2   
@@ -16,7 +16,7 @@ elseif type==2
     R_o_hoick = 0;                %Orientation radius
     R_a_hoick = 0;                %Attraction radius
     R_avoid = 10;
-    omega_independence=1;
+    omega_independence=5;
     
 %----RIVALS----%
 else %type==3
@@ -25,7 +25,7 @@ else %type==3
     R_o_hoick = 0;               %Orientation radius (minus orientation)
     R_a_hoick = 0;                %Attraction radius
     R_avoid = 120;
-    omega_independence=2;
+    omega_independence=5;
 
 end
 
